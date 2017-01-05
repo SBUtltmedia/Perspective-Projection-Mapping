@@ -17,7 +17,7 @@ var clock = new THREE.Clock();
 var movingCube;
 var targetCube;
 var textureCamera, mainCamera;
-
+var raycaster;
 // intermediate scene for reflecting the reflection
 var screenScene, screenCamera, firstRenderTarget, finalRenderTarget;
 $(function(){
@@ -50,19 +50,23 @@ function init()
 	renderer.setSize(SCREEN_WIDTH, SCREEN_HEIGHT);
 	container = document.getElementById( 'ThreeJS' );
 	container.appendChild( renderer.domElement );
+    
 	// EVENTS
 	THREEx.WindowResize(renderer, mainCamera);
 	THREEx.FullScreen.bindKey({ charCode : 'm'.charCodeAt(0) });
+    
 	// STATS
 	stats = new Stats();
 	stats.domElement.style.position = 'absolute';
 	stats.domElement.style.bottom = '0px';
 	stats.domElement.style.zIndex = 100;
 	container.appendChild( stats.domElement );
+    
 	// LIGHT
 	var light = new THREE.PointLight(0xffffff);
 	light.position.set(0,250,0);
 	scene.add(light);
+    
 	// FLOOR
 	var floorTexture = new THREE.ImageUtils.loadTexture( 'images/checkerboard.jpg' );
 	floorTexture.wrapS = floorTexture.wrapT = THREE.RepeatWrapping; 
@@ -73,6 +77,10 @@ function init()
 	floor.position.y =0;
 	floor.rotation.x = Math.PI / 2;
 	scene.add(floor);
+    
+    // RAYCASTERS
+    raycaster = new THREE.Raycaster();
+    
 	// SKYBOX/FOG
 	var materialArray = [];
 	materialArray.push(new THREE.MeshBasicMaterial( { map: THREE.ImageUtils.loadTexture( 'images/dawnmountain-xpos.png' ) }));
@@ -116,7 +124,8 @@ function init()
 	var cubeGeometry = new THREE.CubeGeometry( 100, 100, 100);
     targetCube = new THREE.Mesh( cubeGeometry , blueMaterial );
     
-    targetCube.position.set(0,cubeGeometry.height/2,400) 
+    targetCube.position.set(0, cubeGeometry.height/2, 400);
+    targetCube.name = "Target Object";
     scene.add( targetCube );
 	// a little bit of scenery...
 	var ambientlight = new THREE.AmbientLight(0x111111);
@@ -195,7 +204,8 @@ function update()
 	
 	if ( keyboard.pressed("Z") )
 	{
-		movingCube.position.set(0,25.1,0);
+        console.log(findRaycasterIntersections(movingCube, new THREE.Vector3(0,0,1), targetCube));
+//		movingCube.position.set(0,25.1,0);
 		//movingCube.rotation.set(0,0,0);
 	}
 
@@ -216,6 +226,11 @@ function update()
 	stats.update();
 }
 
+function findRaycasterIntersections(originObj, direction, object)
+{
+    raycaster.set(originObj.position, direction);
+    return raycaster.intersectObject(object);
+}
 function render() 
 {
 	// textureCamera is located at the position of movingCube
