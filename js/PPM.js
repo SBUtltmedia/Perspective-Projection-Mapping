@@ -6,8 +6,9 @@
 
 // MAIN
 //TODO:
-//Raycast from the movingCube to the targetCube
-//Get matrix uvs and find out how to manipulate them
+// Find the correspondance between movements of the MovingCube and the uv mapping of the rendered cube;
+
+
 // standard global variables
 var container, scene, renderer, controls, stats;
 var keyboard = new THREEx.KeyboardState();
@@ -113,7 +114,7 @@ function init()
 	var movingCubeGeom = new THREE.CubeGeometry( 50, 50, 50, 1, 1, 1, materialArray );
 	movingCube = new THREE.Mesh( movingCubeGeom, movingCubeMat );
 	movingCube.position.set(0, 25.1, 0);
-    
+    movingCube.name = "Projector"
     var fixedRotation = new THREE.Matrix4().makeRotationY(Math.PI);
     textureCamera.applyMatrix(fixedRotation);
     
@@ -159,6 +160,7 @@ function init()
 	var planeMaterial = new THREE.MeshBasicMaterial( { map: finalRenderTarget } );
 	renderedCube = new THREE.Mesh( renderedCubeGeom, planeMaterial );
 	renderedCube.position.set(0,renderedCubeGeom.height/2,-200);
+    renderedCube.name = "CubeRenderTarget";
 	scene.add(renderedCube);
 	// pseudo-border for plane, to make it easier to see
 
@@ -194,9 +196,25 @@ function update()
 	{
 //        console.log(findRaycasterIntersections(movingCube, new THREE.Vector3(0,0,1), targetCube));
 //        var results = getWorldToScreen(movingCube, textureCamera);
-        updateUVS(renderedCube);
 //        console.log(results);
 	}
+    
+    if(keyboard.pressed("X"))
+    {
+        
+        var targCubeVx = getWorldPosVertices(targetCube);        
+        var moveCubeVx = getWorldPosVertices(movingCube);   
+        
+//        console.log(targCubeVx);
+//        console.log(moveCubeVx);
+        
+        var distance = findDistBwPoints(moveCubeVx[0], targCubeVx[0]);
+        updateUVS(renderedCube, distance / 100, 0);
+        
+        console.log(distance);
+        
+        
+    }
 
 
 	movingCube.lookAt(targetCube.position);
@@ -215,30 +233,27 @@ function update()
 	stats.update();
 }
 
-function findRaycasterIntersections(originObj, direction, object)
+//originPoint and endPoint are Vector3s
+function findDistBwPoints(originPoint, endPoint)
 {
-    raycaster.set(originObj.position, direction);
-    return raycaster.intersectObject(object);
+    return originPoint.distanceTo(endPoint);
+
 }
 
-function getWorldToScreen(object, camera)
+function getWorldPosVertices(object)
 {
-    var vector = new THREE.Vector3();
-    var projector = new THREE.Projector();
-    
-    var widthHalf = 0.5*renderer.context.canvas.width;
-    var heightHalf = 0.5*renderer.context.canvas.height;
-
+//    console.log(object.name);
     object.updateMatrixWorld();
-    projector.projectVector(vector.setFromMatrixPosition(object.matrixWorld), camera);
-
-    vector.x = ( vector.x * widthHalf ) + widthHalf;
-    vector.y = - ( vector.y * heightHalf ) + heightHalf;
-
-    return { 
-        x: vector.x,
-        y: vector.y
-    };
+    var container = [];
+    for(var i = 0; i < object.geometry.vertices.length; i++)
+    {
+        var vector = object.geometry.vertices[i];
+        vector.setFromMatrixPosition(object.matrixWorld);
+        container[i] = vector;
+    }
+    
+    return container;
+    
 }
 
 function grabVertices(object)
@@ -247,15 +262,16 @@ function grabVertices(object)
    
 }
 
-function updateUVS(object)
+function updateUVS(object, addU, addV)
 {
+    console.log(object.geometry);
     var fuvs = object.geometry.faceVertexUvs;
     
     fuvs[0] = [];
     
-    for(var i = 0; i < 12; i++)
+    for(var i = 0; i < fuvs.length; i++)
     {
-        fuvs[0][i] = [new THREE.Vector2(0.5, 1), new THREE.Vector2(0, 1), new THREE.Vector2(0.33, 1), new THREE.Vector2(0.3, 0.6)];
+        fuvs[0][i] = [new THREE.Vector2(0 + addU, 1), new THREE.Vector2(1 + addU , 0), new THREE.Vector2(0 , 1), new THREE.Vector2(1 , 1)];
     }
     
     object.geometry.uvsNeedUpdate = true;
