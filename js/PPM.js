@@ -14,8 +14,7 @@ var keyboard = new THREEx.KeyboardState();
 var clock = new THREE.Clock();
 
 // custom global variables
-var movingCube;
-var targetCube;
+var movingCube, targetCube, renderedCube;
 var textureCamera, mainCamera;
 var raycaster;
 // intermediate scene for reflecting the reflection
@@ -155,12 +154,12 @@ function init()
 	screenScene.add( quad );
     				
 	// final version of camera texture, used in scene. 
-	var planeGeometry = new THREE.CubeGeometry( 120, 120, 120);
+    var renderedCubeGeom = new THREE.CubeGeometry( 120, 120, 120);
 	finalRenderTarget = new THREE.WebGLRenderTarget( 512, 512, { format: THREE.RGBFormat } );
 	var planeMaterial = new THREE.MeshBasicMaterial( { map: finalRenderTarget } );
-	var plane = new THREE.Mesh( planeGeometry, planeMaterial );
-	plane.position.set(0,planeGeometry.height/2,-200);
-	scene.add(plane);
+	renderedCube = new THREE.Mesh( renderedCubeGeom, planeMaterial );
+	renderedCube.position.set(0,renderedCubeGeom.height/2,-200);
+	scene.add(renderedCube);
 	// pseudo-border for plane, to make it easier to see
 
 	
@@ -190,23 +189,13 @@ function update()
 		movingCube.translateX( -moveDistance );
 	if ( keyboard.pressed("D") )
 		movingCube.translateX(  moveDistance );	
-
-//	// rotate left/right/up/down
-//	var rotation_matrix = new THREE.Matrix4().identity();
-//	if ( keyboard.pressed("A") )
-//		movingCube.rotateOnAxis( new THREE.Vector3(0,1,0), rotateAngle);
-//	if ( keyboard.pressed("D") )
-//		movingCube.rotateOnAxis( new THREE.Vector3(0,1,0), -rotateAngle);
-//	if ( keyboard.pressed("R") )
-//		movingCube.rotateOnAxis( new THREE.Vector3(1,0,0), rotateAngle);
-//	if ( keyboard.pressed("F") )
-//	//	movingCube.rotateOnAxis( new THREE.Vector3(1,0,0), -rotateAngle);
 	
 	if ( keyboard.pressed("Z") )
 	{
-        console.log(findRaycasterIntersections(movingCube, new THREE.Vector3(0,0,1), targetCube));
-//		movingCube.position.set(0,25.1,0);
-		//movingCube.rotation.set(0,0,0);
+//        console.log(findRaycasterIntersections(movingCube, new THREE.Vector3(0,0,1), targetCube));
+//        var results = getWorldToScreen(movingCube, textureCamera);
+        updateUVS(renderedCube);
+//        console.log(results);
 	}
 
 
@@ -230,6 +219,48 @@ function findRaycasterIntersections(originObj, direction, object)
 {
     raycaster.set(originObj.position, direction);
     return raycaster.intersectObject(object);
+}
+
+function getWorldToScreen(object, camera)
+{
+    var vector = new THREE.Vector3();
+    var projector = new THREE.Projector();
+    
+    var widthHalf = 0.5*renderer.context.canvas.width;
+    var heightHalf = 0.5*renderer.context.canvas.height;
+
+    object.updateMatrixWorld();
+    projector.projectVector(vector.setFromMatrixPosition(object.matrixWorld), camera);
+
+    vector.x = ( vector.x * widthHalf ) + widthHalf;
+    vector.y = - ( vector.y * heightHalf ) + heightHalf;
+
+    return { 
+        x: vector.x,
+        y: vector.y
+    };
+}
+
+function grabVertices(object)
+{
+   console.log(object.geometry);
+   
+}
+
+function updateUVS(object)
+{
+    var fuvs = object.geometry.faceVertexUvs;
+    
+    fuvs[0] = [];
+    
+    for(var i = 0; i < 12; i++)
+    {
+        fuvs[0][i] = [new THREE.Vector2(0.5, 1), new THREE.Vector2(0, 1), new THREE.Vector2(0.33, 1), new THREE.Vector2(0.3, 0.6)];
+    }
+    
+    object.geometry.uvsNeedUpdate = true;
+    console.log(fuvs);
+    
 }
 function render() 
 {
