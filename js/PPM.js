@@ -6,8 +6,10 @@
 
 // MAIN
 //TODO:
-// Find the correspondance between movements of the MovingCube and the uv mapping of the rendered cube;
-
+// Find the correspondance between movements of the MovingCube and the uv mapping of the rendered object (using the blue cube in this case);
+//      - [DONE] Find world space coordinates of vertices
+//      - [DONE] Set up distance calculation
+//      - [IP] Figure out factor to multiply distance by to use in UV change calculation
 
 // standard global variables
 var container, scene, renderer, controls, stats;
@@ -161,6 +163,7 @@ function init()
 	renderedCube = new THREE.Mesh( renderedCubeGeom, planeMaterial );
 	renderedCube.position.set(0,renderedCubeGeom.height/2,-200);
     renderedCube.name = "CubeRenderTarget";
+    renderedCube.rotation.y = -Math.PI/2;
 	scene.add(renderedCube);
 	// pseudo-border for plane, to make it easier to see
 
@@ -207,12 +210,13 @@ function update()
         
 //        console.log(targCubeVx);
 //        console.log(moveCubeVx);
-        
-        var distance = findDistBwPoints(moveCubeVx[0], targCubeVx[0]);
-        updateUVS(renderedCube, distance / 100, 0);
-        
-        console.log(distance);
-        
+        for(var c = 0; c < moveCubeVx.length; c++)
+        {
+            var distance = findDistBwPoints(moveCubeVx[c], targCubeVx[c]);
+            updateUVS(renderedCube, distance, 0);
+
+            console.log(distance);
+        }
         
     }
 
@@ -269,9 +273,9 @@ function updateUVS(object, addU, addV)
     
     fuvs[0] = [];
     
-    for(var i = 0; i < fuvs.length; i++)
+    for(var i = 0; i < fuvs.length; i+=2)
     {
-        fuvs[0][i] = [new THREE.Vector2(0 + addU, 1), new THREE.Vector2(1 + addU , 0), new THREE.Vector2(0 , 1), new THREE.Vector2(1 , 1)];
+        fuvs[0][i] = [new THREE.Vector2(0.5, 0.5), new THREE.Vector2(0.5 , 1), new THREE.Vector2(0, 0.5), new THREE.Vector2(0.5 , 0)];
     }
     
     object.geometry.uvsNeedUpdate = true;
