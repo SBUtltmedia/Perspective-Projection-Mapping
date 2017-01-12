@@ -12,16 +12,19 @@
 //      - [IP] Figure out factor to multiply distance by to use in UV change calculation
 
 // standard global variables
-var container, scene, renderer, controls, stats;
+var container,container2,container3, scene, renderer,renderer2,renderer3, controls, stats;
 var keyboard = new THREEx.KeyboardState();
 var clock = new THREE.Clock();
 
 // custom global variables
 var movingCube, targetCube, renderedCube;
 var textureCamera, mainCamera;
+var hudTexCam, hudUVCam; 
 var raycaster;
 // intermediate scene for reflecting the reflection
 var screenScene, screenCamera, firstRenderTarget, finalRenderTarget;
+var plus = 0;
+var grow = true;
 $(function(){
 init();
 animate();
@@ -49,9 +52,22 @@ function init()
 		renderer = new THREE.WebGLRenderer( {antialias:true} );
 	else
 		renderer = new THREE.CanvasRenderer(); 
-	renderer.setSize(SCREEN_WIDTH, SCREEN_HEIGHT);
+	renderer.setSize(SCREEN_WIDTH/2, SCREEN_HEIGHT/2);
 	container = document.getElementById( 'ThreeJS' );
 	container.appendChild( renderer.domElement );
+    
+    
+    	renderer2 = new THREE.CanvasRenderer(); 
+	renderer2.setSize(SCREEN_WIDTH/4, SCREEN_HEIGHT/4);
+	container2 = document.getElementById( 'TextureView' );
+	container2.appendChild( renderer2.domElement );
+    $('#TextureView canvas').attr("id",'TextureViewCanvas' )
+       	renderer3 = new THREE.CanvasRenderer(); 
+	renderer3.setSize(SCREEN_WIDTH/4, SCREEN_HEIGHT/4);
+	container3 = document.getElementById( 'UVView' );
+	container3.appendChild( renderer3.domElement );
+        $('#UVView canvas').attr("id",'UVViewCanvas' )
+    drawPoint('TextureViewCanvas',.5,.5)
     
 	// EVENTS
 	THREEx.WindowResize(renderer, mainCamera);
@@ -160,12 +176,17 @@ function init()
     var renderedCubeGeom = new THREE.CubeGeometry( 120, 120, 120);
 	finalRenderTarget = new THREE.WebGLRenderTarget( 512, 512, { format: THREE.RGBFormat } );
 	var planeMaterial = new THREE.MeshBasicMaterial( { map: finalRenderTarget } );
+    console.log(finalRenderTarget);
 	renderedCube = new THREE.Mesh( renderedCubeGeom, planeMaterial );
 	renderedCube.position.set(0,renderedCubeGeom.height/2,-200);
     renderedCube.name = "CubeRenderTarget";
     renderedCube.rotation.y = -Math.PI/2;
 	scene.add(renderedCube);
-	// pseudo-border for plane, to make it easier to see
+    
+    
+    
+    
+   
 
 	
 }
@@ -182,7 +203,6 @@ function update()
 	var delta = clock.getDelta(); // seconds.
 	var moveDistance = 200 * delta; // 200 pixels per second
 	var rotateAngle = Math.PI / 2 * delta;   // pi/2 radians (90 degrees) per second
-	
 	// local transformations
 
 	// move forwards/backwards/left/right
@@ -202,38 +222,45 @@ function update()
 //        console.log(results);
 	}
     
+    if ( keyboard.pressed("C") )
+	{
+        console.log(renderedCube.geometry.faceVertexUvs);
+        
+        console.log(renderedCube.material.map);
+	}
+    
     if(keyboard.pressed("X"))
     {
-        
+//        
         var targCubeVx = getWorldPosVertices(targetCube);        
         var moveCubeVx = getWorldPosVertices(movingCube);   
-        
-//        console.log(targCubeVx);
-//        console.log(moveCubeVx);
+//        
+////        console.log(targCubeVx);
+////        console.log(moveCubeVx);
         for(var c = 0; c < moveCubeVx.length; c++)
         {
             var distance = findDistBwPoints(moveCubeVx[c], targCubeVx[c]);
-            updateUVS(renderedCube, distance, 0);
+            updateUVS(renderedCube, 0, plus, targCubeVx);
+//            console.log(distance);
+//            genTexCoords(renderedCube.geometry, distance, distance);
 
-            console.log(distance);
         }
         
+        
+        
     }
+    
+    if ( keyboard.pressed("O") )
+        grow = true;
+    if ( keyboard.pressed("P") )
+        grow = false; 
+    
+    if(grow);
+//        plus += delta * 0.3;
+           
 
 
-	movingCube.lookAt(targetCube.position);
-    
-    
-	// update the texture camera's position and look direction
-//	var relativeCameraOffset = new THREE.Vector3(0,0,1);
-//	var cameraOffset = movingCube.matrixWorld.multiplyVector3( relativeCameraOffset );
-//	textureCamera.position.x = cameraOffset.x;
-//	textureCamera.position.y = cameraOffset.y;
-//	textureCamera.position.z = cameraOffset.z;
-//	var relativeCameraLookOffset = new THREE.Vector3(0,0,0);
-//	var cameraLookOffset = relativeCameraLookOffset.applyMatrix4( movingCube.matrixWorld );
-//	textureCamera.lookAt( cameraLookOffset );
-    //cameraLookOffset			
+	movingCube.lookAt(targetCube.position);			
 	stats.update();
 }
 
@@ -246,7 +273,6 @@ function findDistBwPoints(originPoint, endPoint)
 
 function getWorldPosVertices(object)
 {
-//    console.log(object.name);
     object.updateMatrixWorld();
     var container = [];
     for(var i = 0; i < object.geometry.vertices.length; i++)
@@ -266,22 +292,53 @@ function grabVertices(object)
    
 }
 
-function updateUVS(object, addU, addV)
+function updateUVS(object, addU, addV, targetArr)
 {
-    console.log(object.geometry);
     var fuvs = object.geometry.faceVertexUvs;
+    object.geometry.computeBoundingBox();
     
-    fuvs[0] = [];
-    
+    var min = object.geometry.boundingBox.min;
+    var max = object.geometry.boundingBox.max;
+
     for(var i = 0; i < fuvs.length; i+=2)
     {
-        fuvs[0][i] = [new THREE.Vector2(0.5, 0.5), new THREE.Vector2(0.5 , 1), new THREE.Vector2(0, 0.5), new THREE.Vector2(0.5 , 0)];
+//        fuvs[0][i] = [];
+        
+        //This is the default texture mapping
+            fuvs[0][i] = [ new THREE.Vector2(0 , addV), new THREE.Vector2(0, 0), new THREE.Vector2(addV, addV)];
+            fuvs[0][++i] = [ new THREE.Vector2(0, 0),  new THREE.Vector2(addV , 0),new THREE.Vector2(addV, addV)];
+//        console.log(fuvs[0][i]);
     }
     
     object.geometry.uvsNeedUpdate = true;
-    console.log(fuvs);
+    
+//    for(var j = 0; j < targetArr.length; j++)
+//    {
+//    console.log(planePosToTextureWorld(object, object.position));
     
 }
+
+function texturePosToPlaneWorld(planeOb, texcoord)
+{    
+    var pos = new THREE.Vector3();
+    pos.x = (texcoord.x - 0.5) * 512;
+    pos.y = (texcoord.y - 0.5) * 512;
+
+    pos.applyMatrix4(planeOb.matrix);
+    return pos;
+}
+
+function planePosToTextureWorld(planeOb, worldcoord)
+{    
+    var pos = new THREE.Vector3();
+    pos.x = (worldcoord.x) / 512;
+    pos.y = (worldcoord.y) / 512;
+
+    pos.applyMatrix4(new THREE.Matrix4(0, 0, 512, 512));
+    return pos;
+}
+
+
 function render() 
 {
 	// textureCamera is located at the position of movingCube
@@ -303,3 +360,17 @@ function render()
 	// render the main scene
 	renderer.render( scene, mainCamera );
 }
+
+function drawPoint(canvasID,x,y) { 
+
+           var canvas = document.getElementById(canvasID); 
+            var plotx=(x)*canvas.width;
+            var ploty=(y)*canvas.height;
+           if (canvas.getContext) { 
+               var context = canvas.getContext("2d"); 
+               context.fillStyle = "red"; 
+               context.strokeStyle = "Blue"; 
+ 
+              context.fillRect(plotx,ploty,4,4)
+           } 
+       }     
