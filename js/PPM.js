@@ -46,6 +46,17 @@ function init()
 	// camera 2
 	textureCamera = new THREE.PerspectiveCamera( VIEW_ANGLE, ASPECT, NEAR, FAR );
 	//scene.add(textureCamera);
+    
+    //Additional Cameras for HUD
+    hudTexCam = new THREE.OrthographicCamera(window.innerWidth  / -4, window.innerWidth  /  4, 
+		window.innerHeight /  4, window.innerHeight / -4, 
+		-500, 10000 );
+    
+    
+    hudUVCam = new THREE.OrthographicCamera(window.innerWidth  / -4, window.innerWidth  /  4, 
+		window.innerHeight /  4, window.innerHeight / -4, -10000, 10000 );
+    hudUVCam.position.z = 1;
+    
 
 	// RENDERER
 	if ( Detector.webgl )
@@ -67,7 +78,6 @@ function init()
 	container3 = document.getElementById( 'UVView' );
 	container3.appendChild( renderer3.domElement );
         $('#UVView canvas').attr("id",'UVViewCanvas' )
-    drawPoint('TextureViewCanvas',.5,.5)
     
 	// EVENTS
 	THREEx.WindowResize(renderer, mainCamera);
@@ -137,6 +147,7 @@ function init()
     textureCamera.applyMatrix(fixedRotation);
     
     movingCube.add(textureCamera);
+    movingCube.add(hudTexCam);
 	scene.add( movingCube );	
     var blueMaterial = new THREE.MeshBasicMaterial( { color: 0x0000ff, transparent: true, opacity: 0.9 } );
 	var cubeGeometry = new THREE.CubeGeometry( 100, 100, 100);
@@ -359,6 +370,10 @@ function render()
 	
 	// render the main scene
 	renderer.render( scene, mainCamera );
+    
+    renderer2.render(scene, textureCamera, true);
+    drawPoint('TextureViewCanvas',.5,.5)
+    
 }
 
 function drawPoint(canvasID,x,y) { 
@@ -368,7 +383,7 @@ function drawPoint(canvasID,x,y) {
             var ploty=(y)*canvas.height;
            if (canvas.getContext) { 
                var context = canvas.getContext("2d"); 
-               context.fillStyle = "red"; 
+               context.fillStyle = "white"; 
                context.strokeStyle = "Blue"; 
  
               context.fillRect(plotx,ploty,4,4)
