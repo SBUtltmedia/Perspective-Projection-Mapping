@@ -12,7 +12,7 @@
 //      - [IP] Figure out factor to multiply distance by to use in UV change calculation
 
 // standard global variables
-var container,container2,container3, scene, renderer,renderer2,renderer3, controls, stats;
+var container,container2,container3, scene,hudScene, renderer,renderer2,renderer3, controls, stats;
 var keyboard = new THREEx.KeyboardState();
 var clock = new THREE.Clock();
 var pressed = false;
@@ -36,7 +36,7 @@ function init()
 {
 	// SCENE
 	scene = new THREE.Scene();
-
+hudScene= new THREE.Scene();
 	// CAMERAS
 	var SCREEN_WIDTH = window.innerWidth, SCREEN_HEIGHT = window.innerHeight;
 	var VIEW_ANGLE = 45, ASPECT = SCREEN_WIDTH / SCREEN_HEIGHT, NEAR = 0.1, FAR = 20000;
@@ -50,14 +50,7 @@ function init()
 	//scene.add(textureCamera);
     
     //Additional Cameras for HUD
-    hudTexCam = new THREE.OrthographicCamera(window.innerWidth  / -4, window.innerWidth  /  4, 
-		window.innerHeight /  4, window.innerHeight / -4, 
-		-500, 10000 );
-    
-    
-    hudUVCam = new THREE.OrthographicCamera(window.innerWidth  / -4, window.innerWidth  /  4, 
-		window.innerHeight /  4, window.innerHeight / -4, -10000, 10000 );
-    hudUVCam.position.z = 1;
+  
     
 
 	// RENDERER
@@ -150,7 +143,6 @@ function init()
     textureCamera.applyMatrix(fixedRotation);
     
     movingCube.add(textureCamera);
-    movingCube.add(hudTexCam);
 	scene.add( movingCube );	
     var blueMaterial = new THREE.MeshBasicMaterial( { color: 0x0000ff, transparent: true, opacity: 0.9 } );
 	var cubeGeometry = new THREE.CubeGeometry( 100, 100, 100);
@@ -191,6 +183,7 @@ function init()
     var renderedCubeGeom = new THREE.CubeGeometry( 120, 120, 120);
 	finalRenderTarget = new THREE.WebGLRenderTarget( 512, 512, { format: THREE.RGBFormat } );
 	var planeMaterial = new THREE.MeshBasicMaterial( { map: finalRenderTarget } );
+    
     console.log(finalRenderTarget);
 	renderedCube = new THREE.Mesh( renderedCubeGeom, planeMaterial );
 	renderedCube.position.set(0,renderedCubeGeom.parameters.height / 2 ,-200);
@@ -198,6 +191,14 @@ function init()
     renderedCube.rotation.y = -Math.PI/2;
 	scene.add(renderedCube);
     
+    
+    var spriteMaterial = new THREE.SpriteMaterial( { map: finalRenderTarget } );
+//    var sWidth = spriteMaterial.map.image.width;
+//    var sHeight = spriteMaterial.map.image.height;
+    var sprite = new THREE.Sprite( spriteMaterial );
+    sprite.scale.set( 300, 300, 1 );
+    sprite.position.set(0, 100, 1);
+    scene.add( sprite );
     
     
     
@@ -350,16 +351,13 @@ function getWorldToXY(vertex, camera)
      var widthHalf = 0.5*renderer.context.canvas.width;
      var heightHalf = 0.5*renderer.context.canvas.height;
  
-     object.updateMatrixWorld();
-     projector.projectVector(vector.applyMatrix4(object.matrixWorld), camera);
+     
  
-     vector.x = ( vector.x * widthHalf ) + widthHalf;
-     vector.y = - ( vector.y * heightHalf ) + heightHalf;
- 
-     return { 
-         x: vector.x,
-         y: vector.y
-     };
+    vector.x =  vector.x/20 +1; 
+     vector.y = -vector.y/20  +1;
+ //vector.x=2;
+  //  console.log(vector.x , -vector.y / 40 + 1);
+     return vector;
 }
 
 
@@ -441,9 +439,15 @@ function render()
 	// render the main scene
 	renderer.render( scene, mainCamera );
     
-    renderer2.render(scene, textureCamera, true);
-    drawPoint('TextureViewCanvas',.5,.5);
+//    renderer2.render(scene, textureCamera);
+   // drawPoint('TextureViewCanvas',.5,.5);
+
+ drawPoint('TextureViewCanvas',-1,-1);
+    $.each(targetCube.geometry.vertices,function(index,val){
+        var screenPoint = getWorldToXY(val, textureCamera)
     
+        drawPoint('TextureViewCanvas',screenPoint.x,screenPoint.y);
+    });
     ///////// TEXTURE VIEW RENDERERING //////////
     
     
@@ -465,13 +469,13 @@ function render()
 function drawPoint(canvasID,x,y) { 
 
            var canvas = document.getElementById(canvasID); 
-            var plotx=(x)*canvas.width;
-            var ploty=(y)*canvas.height;
+            var plotx=(x)*canvas.width-canvas.width/2;
+            var ploty=(y)*canvas.height-canvas.height/2;
            if (canvas.getContext) { 
                var context = canvas.getContext("2d"); 
                context.fillStyle = "white"; 
                context.strokeStyle = "Blue"; 
- 
-              context.fillRect(plotx,ploty,4,4)
+                
+              context.fillRect(plotx-2,ploty-2,4,4)
            } 
        }     
