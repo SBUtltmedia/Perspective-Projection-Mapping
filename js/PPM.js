@@ -16,6 +16,8 @@ var container,container2,container3, scene, renderer,renderer2,renderer3, contro
 var keyboard = new THREEx.KeyboardState();
 var clock = new THREE.Clock();
 var pressed = false;
+
+var interrim, throwaway;
 // custom global variables
 var movingCube, targetCube, renderedCube;
 var textureCamera, mainCamera;
@@ -263,15 +265,11 @@ function update()
 //        
         var targCubeVx = getWorldPosVertices(targetCube);        
         var moveCubeVx = getWorldPosVertices(movingCube);   
-//        
-////        console.log(targCubeVx);
-////        console.log(moveCubeVx);
+ 
         for(var c = 0; c < moveCubeVx.length; c++)
         {
             var distance = findDistBwPoints(moveCubeVx[c], targCubeVx[c]);
             updateUVS(renderedCube, 0, plus, targCubeVx);
-//            console.log(distance);
-//            genTexCoords(renderedCube.geometry, distance, distance);
 
         }
         
@@ -426,14 +424,14 @@ function render()
     
 //      console.log(findRaycasterIntersections(movingCube, new THREE.Vector3(0,0,1), targetCube));
         var targCubeVx = getWorldPosVertices(targetCube);        
-        var throwaway = new THREE.Object3D();
+        throwaway = new THREE.Object3D();
         for(var k = 0; k < targCubeVx.length; k++)
         {
             throwaway.position.x = targCubeVx[k].x;
             throwaway.position.y = targCubeVx[k].y;
-            var interrim = getWorldToScreen(throwaway, mainCamera);
+            interrim = getWorldToScreen(throwaway, mainCamera);
             
-            drawPoint('TextureViewCanvas', interrim.x / renderer2.domElement.width - .5 , interrim.y / renderer2.domElement.height- .5);            
+            drawPoint('TextureViewCanvas', interrim.x / renderer2.domElement.width - .5 , interrim.y / renderer2.domElement.height - .5);            
 
         }
     
