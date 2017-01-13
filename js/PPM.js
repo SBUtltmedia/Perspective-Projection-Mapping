@@ -156,7 +156,8 @@ function init()
 	var cubeGeometry = new THREE.CubeGeometry( 100, 100, 100);
     targetCube = new THREE.Mesh( cubeGeometry , blueMaterial );
     
-    targetCube.position.set(0, cubeGeometry.height/2, 400);
+    console.log(cubeGeometry);
+    targetCube.position.set(0, cubeGeometry.parameters.height / 2, 400);
     targetCube.name = "Target Object";
     scene.add( targetCube );
 	// a little bit of scenery...
@@ -192,7 +193,7 @@ function init()
 	var planeMaterial = new THREE.MeshBasicMaterial( { map: finalRenderTarget } );
     console.log(finalRenderTarget);
 	renderedCube = new THREE.Mesh( renderedCubeGeom, planeMaterial );
-	renderedCube.position.set(0,renderedCubeGeom.height/2,-200);
+	renderedCube.position.set(0,renderedCubeGeom.parameters.height / 2 ,-200);
     renderedCube.name = "CubeRenderTarget";
     renderedCube.rotation.y = -Math.PI/2;
 	scene.add(renderedCube);
@@ -320,10 +321,31 @@ function getWorldPosVertices(object)
     
 }
 
-function getWorldToScreen(object, camera)
+//function getWorldToScreen(object, camera)
+//{
+//     var vector = new THREE.Vector3();
+//     var projector = new THREE.Projector();
+//     
+//     var widthHalf = 0.5*renderer.context.canvas.width;
+//     var heightHalf = 0.5*renderer.context.canvas.height;
+// 
+//     object.updateMatrixWorld();
+//     projector.projectVector(vector.applyMatrix4(object.matrixWorld), camera);
+// 
+//     vector.x = ( vector.x * widthHalf ) + widthHalf;
+//     vector.y = - ( vector.y * heightHalf ) + heightHalf;
+// 
+//     return { 
+//         x: vector.x,
+//         y: vector.y
+//     };
+//}
+
+
+function getWorldToXY(vertex, camera)
 {
-     var vector = new THREE.Vector3();
-     var projector = new THREE.Projector();
+     var vector = vertex.clone();
+    vector.project(camera)
      
      var widthHalf = 0.5*renderer.context.canvas.width;
      var heightHalf = 0.5*renderer.context.canvas.height;
@@ -339,6 +361,9 @@ function getWorldToScreen(object, camera)
          y: vector.y
      };
 }
+
+
+
 
 
 
@@ -422,18 +447,18 @@ function render()
     ///////// TEXTURE VIEW RENDERERING //////////
     
     
-//      console.log(findRaycasterIntersections(movingCube, new THREE.Vector3(0,0,1), targetCube));
-        var targCubeVx = getWorldPosVertices(targetCube);        
-        throwaway = new THREE.Object3D();
-        for(var k = 0; k < targCubeVx.length; k++)
-        {
-            throwaway.position.x = targCubeVx[k].x;
-            throwaway.position.y = targCubeVx[k].y;
-            interrim = getWorldToScreen(throwaway, mainCamera);
-            
-            drawPoint('TextureViewCanvas', interrim.x / renderer2.domElement.width - .5 , interrim.y / renderer2.domElement.height - .5);            
-
-        }
+////      console.log(findRaycasterIntersections(movingCube, new THREE.Vector3(0,0,1), targetCube));
+//        var targCubeVx = getWorldPosVertices(targetCube);        
+//        throwaway = new THREE.Object3D();
+//        for(var k = 0; k < targCubeVx.length; k++)
+//        {
+//            throwaway.position.x = targCubeVx[k].x;
+//            throwaway.position.y = targCubeVx[k].y;
+//            interrim = getWorldToScreen(throwaway, mainCamera);
+//            
+//            drawPoint('TextureViewCanvas', interrim.x / renderer2.domElement.width - .5 , interrim.y / renderer2.domElement.height - .5);            
+//
+//        }
     
 }
 
