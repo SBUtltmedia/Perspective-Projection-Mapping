@@ -64,7 +64,7 @@ hudScene= new THREE.Scene();
     $('#ThreeJS canvas').attr("id",'TJSCanvas' )
     
     
-    	renderer2 = new THREE.CanvasRenderer(); 
+    renderer2 = new THREE.CanvasRenderer(); 
 	renderer2.setSize(SCREEN_WIDTH/4, SCREEN_HEIGHT/4);
 	container2 = document.getElementById( 'TextureView' );
 	container2.appendChild( renderer2.domElement );
@@ -192,16 +192,16 @@ hudScene= new THREE.Scene();
 	scene.add(renderedCube);
     
     
-    var spriteMaterial = new THREE.SpriteMaterial( { map: finalRenderTarget } );
-//    var sWidth = spriteMaterial.map.image.width;
-//    var sHeight = spriteMaterial.map.image.height;
-    var sprite = new THREE.Sprite( spriteMaterial );
-    sprite.scale.set( 300, 300, 1 );
-    sprite.position.set(0, 100, 1);
-    scene.add( sprite );
-    
-    
-    
+//    var spriteMaterial = new THREE.SpriteMaterial( { map: finalRenderTarget } );
+////    var sWidth = spriteMaterial.map.image.width;
+////    var sHeight = spriteMaterial.map.image.height;
+//    var sprite = new THREE.Sprite( spriteMaterial );
+//    sprite.scale.set( 300, 300, 1 );
+//    sprite.position.set(0, 100, 1);
+//    scene.add( sprite );
+//    
+//    
+//    
    
 
 	
@@ -360,9 +360,28 @@ function getWorldToXY(vertex, camera)
      return vector;
 }
 
+ function Point3DToScreen2D(point3D,camera)
+{
+    var p = point3D.clone();
+
+    camera.updateMatrix(); // make sure camera's local matrix is updated
+    camera.updateMatrixWorld(); // make sure camera's world matrix is updated
+    camera.matrixWorldInverse.getInverse( camera.matrixWorld );
 
 
+    var frustum = new THREE.Frustum();
+    frustum.setFromMatrix( new THREE.Matrix4().multiply( camera.projectionMatrix, camera.matrixWorldInverse ) );
 
+    if(frustum.containsPoint( p )) {
+      var vector = p.project(camera);
+      vector.x = (vector.x + 1) / 2 ;
+      vector.y = -(vector.y - 1) / 2;
+
+      return vector;
+    } else { return false}
+
+
+ }
 
 
 function grabVertices(object)
@@ -439,13 +458,13 @@ function render()
 	// render the main scene
 	renderer.render( scene, mainCamera );
     
-//    renderer2.render(scene, textureCamera);
-   // drawPoint('TextureViewCanvas',.5,.5);
+    renderer2.render(scene, textureCamera, true);
+    drawPoint('TextureViewCanvas',.5,.5);
 
  drawPoint('TextureViewCanvas',-1,-1);
     $.each(targetCube.geometry.vertices,function(index,val){
-        var screenPoint = getWorldToXY(val, textureCamera)
-    
+        var screenPoint = Point3DToScreen2D(val, textureCamera)
+        console.log(screenPoint);
         drawPoint('TextureViewCanvas',screenPoint.x,screenPoint.y);
     });
     ///////// TEXTURE VIEW RENDERERING //////////
