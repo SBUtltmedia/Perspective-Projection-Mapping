@@ -12,7 +12,7 @@
 //      - [IP] Figure out factor to multiply distance by to use in UV change calculation
 
 // standard global variables
-var container,container2,container3, scene,hudScene, renderer,renderer2,renderer3, controls, stats;
+var container, container2, container3, scene, hudScene, renderer, renderer2, renderer3, controls, stats;
 var keyboard = new THREEx.KeyboardState();
 var clock = new THREE.Clock();
 var pressed = false;
@@ -21,28 +21,34 @@ var interrim, throwaway;
 // custom global variables
 var movingCube, targetCube, renderedCube;
 var textureCamera, mainCamera;
-var hudTexCam, hudUVCam; 
 var raycaster;
 // intermediate scene for reflecting the reflection
 var screenScene, screenCamera, firstRenderTarget, finalRenderTarget;
 var plus = 0;
 var grow = true;
-$(function(){
-init();
-animate();
+$(function() 
+{
+    init();
+    animate();
 });
 // FUNCTIONS 		
 function init() 
 {
+    
+    $.each([1,2,3,4,5,6,7,8],function(idx,val){
+           
+           $("#TextureView").append("<div class='vertexDiv' id='vert"+idx+"'></div>")
+           })
+    
 	// SCENE
 	scene = new THREE.Scene();
-hudScene= new THREE.Scene();
 	// CAMERAS
 	var SCREEN_WIDTH = window.innerWidth, SCREEN_HEIGHT = window.innerHeight;
 	var VIEW_ANGLE = 45, ASPECT = SCREEN_WIDTH / SCREEN_HEIGHT, NEAR = 0.1, FAR = 20000;
 	// camera 1
 	mainCamera = new THREE.PerspectiveCamera( VIEW_ANGLE, ASPECT, NEAR, FAR );
 	scene.add(mainCamera);
+    
 	mainCamera.position.set(300,200,800);
 	mainCamera.lookAt(scene.position);
 	// camera 2
@@ -62,21 +68,25 @@ hudScene= new THREE.Scene();
 	container = document.getElementById( 'ThreeJS' );
 	container.appendChild( renderer.domElement );
     $('#ThreeJS canvas').attr("id",'TJSCanvas' )
+
     
-    
-    renderer2 = new THREE.CanvasRenderer(); 
-	renderer2.setSize(SCREEN_WIDTH/4, SCREEN_HEIGHT/4);
+    renderer2 = new THREE.WebGLRenderer(); 
+	renderer2.setSize(SCREEN_WIDTH/2, SCREEN_HEIGHT/2);
 	container2 = document.getElementById( 'TextureView' );
 	container2.appendChild( renderer2.domElement );
     $('#TextureView canvas').attr("id",'TextureViewCanvas' )
-       	renderer3 = new THREE.CanvasRenderer(); 
-	renderer3.setSize(SCREEN_WIDTH/4, SCREEN_HEIGHT/4);
+    
+    renderer3 = new THREE.WebGLRenderer( {antialias:true} );
+	renderer3.setSize(SCREEN_WIDTH/2, SCREEN_HEIGHT/2);
 	container3 = document.getElementById( 'UVView' );
 	container3.appendChild( renderer3.domElement );
-        $('#UVView canvas').attr("id",'UVViewCanvas' )
+    $('#UVView canvas').attr("id",'UVViewCanvas' )
     
 	// EVENTS
 	THREEx.WindowResize(renderer, mainCamera);
+	THREEx.WindowResize(renderer2, mainCamera);
+	THREEx.WindowResize(renderer3, mainCamera);
+    
 	THREEx.FullScreen.bindKey({ charCode : 'm'.charCodeAt(0) });
     
 	// STATS
@@ -128,12 +138,12 @@ hudScene= new THREE.Scene();
 	
 	// create an array with six textures for a cool cube
 	var materialArray = [];
-	materialArray.push(new THREE.MeshBasicMaterial( { map: THREE.ImageUtils.loadTexture( 'images/xpos.png' ) }));
-	materialArray.push(new THREE.MeshBasicMaterial( { map: THREE.ImageUtils.loadTexture( 'images/xneg.png' ) }));
-	materialArray.push(new THREE.MeshBasicMaterial( { map: THREE.ImageUtils.loadTexture( 'images/ypos.png' ) }));
-	materialArray.push(new THREE.MeshBasicMaterial( { map: THREE.ImageUtils.loadTexture( 'images/yneg.png' ) }));
-	materialArray.push(new THREE.MeshBasicMaterial( { map: THREE.ImageUtils.loadTexture( 'images/zpos.png' ) }));
-	materialArray.push(new THREE.MeshBasicMaterial( { map: THREE.ImageUtils.loadTexture( 'images/zneg.png' ) }));
+	materialArray.push(new THREE.MeshBasicMaterial( { map: THREE.ImageUtils.loadTexture( 'images/xpos.png' ), overdraw:0.5}));
+	materialArray.push(new THREE.MeshBasicMaterial( { map: THREE.ImageUtils.loadTexture( 'images/xneg.png' ), overdraw:0.5 }));
+	materialArray.push(new THREE.MeshBasicMaterial( { map: THREE.ImageUtils.loadTexture( 'images/ypos.png' ), overdraw:0.5 }));
+	materialArray.push(new THREE.MeshBasicMaterial( { map: THREE.ImageUtils.loadTexture( 'images/yneg.png' ), overdraw:0.5 }));
+	materialArray.push(new THREE.MeshBasicMaterial( { map: THREE.ImageUtils.loadTexture( 'images/zpos.png' ), overdraw:0.5 }));
+	materialArray.push(new THREE.MeshBasicMaterial( { map: THREE.ImageUtils.loadTexture( 'images/zneg.png' ), overdraw:0.5 }));
 	var movingCubeMat = new THREE.MeshFaceMaterial(materialArray);
 	var movingCubeGeom = new THREE.CubeGeometry( 50, 50, 50, 1, 1, 1, materialArray );
 	movingCube = new THREE.Mesh( movingCubeGeom, movingCubeMat );
@@ -144,8 +154,8 @@ hudScene= new THREE.Scene();
     
     movingCube.add(textureCamera);
 	scene.add( movingCube );	
-    var blueMaterial = new THREE.MeshBasicMaterial( { color: 0x0000ff, transparent: true, opacity: 0.9 } );
-	var cubeGeometry = new THREE.CubeGeometry( 100, 100, 100);
+    var blueMaterial = new THREE.MeshBasicMaterial( { color: 0x0000ff, transparent: true, opacity: 0.9, overdraw:0.5 } );
+	var cubeGeometry = new THREE.CubeGeometry( 100, 20, 200);
     targetCube = new THREE.Mesh( cubeGeometry , blueMaterial );
     
     console.log(cubeGeometry);
@@ -370,9 +380,9 @@ function getWorldToXY(vertex, camera)
 
 
     var frustum = new THREE.Frustum();
-    frustum.setFromMatrix( new THREE.Matrix4().multiply( camera.projectionMatrix, camera.matrixWorldInverse ) );
+    frustum.setFromMatrix( new THREE.Matrix4().multiplyMatrices( camera.projectionMatrix, camera.matrixWorldInverse ) );
 
-    if(frustum.containsPoint( p )) {
+    if(1 || frustum.containsPoint( p )) {
       var vector = p.project(camera);
       vector.x = (vector.x + 1) / 2 ;
       vector.y = -(vector.y - 1) / 2;
@@ -456,45 +466,27 @@ function render()
 	renderer.render( screenScene, screenCamera, finalRenderTarget, true );
 	
 	// render the main scene
-	renderer.render( scene, mainCamera );
+	renderer.render( scene, textureCamera );
     
-    renderer2.render(scene, textureCamera, true);
-    drawPoint('TextureViewCanvas',.5,.5);
+    renderer2.render(scene, textureCamera);
+//    drawPoint('TextureViewCanvas',.5,.5);
 
- drawPoint('TextureViewCanvas',-1,-1);
+// drawPoint('TextureViewCanvas',-1,-1);
     $.each(targetCube.geometry.vertices,function(index,val){
         var screenPoint = Point3DToScreen2D(val, textureCamera)
-        console.log(screenPoint);
-        drawPoint('TextureViewCanvas',screenPoint.x,screenPoint.y);
+        drawPoint('TextureViewCanvas',screenPoint.x,screenPoint.y,index);
     });
-    ///////// TEXTURE VIEW RENDERERING //////////
-    
-    
-////      console.log(findRaycasterIntersections(movingCube, new THREE.Vector3(0,0,1), targetCube));
-//        var targCubeVx = getWorldPosVertices(targetCube);        
-//        throwaway = new THREE.Object3D();
-//        for(var k = 0; k < targCubeVx.length; k++)
-//        {
-//            throwaway.position.x = targCubeVx[k].x;
-//            throwaway.position.y = targCubeVx[k].y;
-//            interrim = getWorldToScreen(throwaway, mainCamera);
-//            
-//            drawPoint('TextureViewCanvas', interrim.x / renderer2.domElement.width - .5 , interrim.y / renderer2.domElement.height - .5);            
-//
-//        }
+
     
 }
 
-function drawPoint(canvasID,x,y) { 
-
-           var canvas = document.getElementById(canvasID); 
-            var plotx=(x)*canvas.width-canvas.width/2;
-            var ploty=(y)*canvas.height-canvas.height/2;
-           if (canvas.getContext) { 
-               var context = canvas.getContext("2d"); 
-               context.fillStyle = "white"; 
-               context.strokeStyle = "Blue"; 
-                
-              context.fillRect(plotx-2,ploty-2,4,4)
-           } 
-       }     
+function drawPoint(canvasID,x,y,idx) 
+{ 
+    var canvas = document.getElementById(canvasID);
+    console.log(canvas);
+    var width = canvas.width;
+    var height = canvas.height;
+    console.log(x * width, y * height);
+//    console.log(x * width, y * height);
+    $("#vert"+idx).css({"left":x*width,"top":y*height});
+}     

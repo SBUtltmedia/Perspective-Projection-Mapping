@@ -17,6 +17,16 @@ body
 	text-align: left;               /* left, right, center, justify */
 }
 
+.vertexDiv{
+    
+    position:absolute;
+    width:10px;
+    height:10px;
+    background-color:red;
+    
+}
+
+
 .fancy
 {
 	min-height: 150px;

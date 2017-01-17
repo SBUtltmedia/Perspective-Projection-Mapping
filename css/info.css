@@ -1,5 +1,12 @@
 /* Customized CSS for jQuery UI: simple info button and box. */
-
+.vertexDiv{
+    
+    position:absolute;
+    width:10px;
+    height:10px;
+    background-color:red;
+    
+}
 .ui-widget-content 
 {
     font-size:12px;
@@ -16,7 +23,7 @@
 .ui-dialog-titlebar-close
 {
 	outline-width: 0px !important;
-	background-color: transparent !important;
+	background-color: transparent !important
     background-image: url('../images/icon-close-16.png') !important;
 	background-repeat:no-repeat !important;
 }
