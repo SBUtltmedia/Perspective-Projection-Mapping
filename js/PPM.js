@@ -43,7 +43,13 @@ function init()
 	// SCENE
 	scene = new THREE.Scene();
 	// CAMERAS
+    var tcan = document.getElementById("ThreeJS");
+    console.log(tcan);
+    
 	var SCREEN_WIDTH = window.innerWidth, SCREEN_HEIGHT = window.innerHeight;
+//	var SCREEN_WIDTH = tcan.offsetWidth, SCREEN_HEIGHT = tcan.offsetHeight;
+//    console.log(SCREEN_WIDTH, SCREEN_HEIGHT);
+    
 	var VIEW_ANGLE = 45, ASPECT = SCREEN_WIDTH / SCREEN_HEIGHT, NEAR = 0.1, FAR = 20000;
 	// camera 1
 	mainCamera = new THREE.PerspectiveCamera( VIEW_ANGLE, ASPECT, NEAR, FAR );
@@ -224,6 +230,15 @@ function animate()
 	update();
 }
 
+function uv2vert(geometry,faceIndex,vertexIndex){
+    
+return geometry.vertices[
+    geometry.faces[faceIndex][ String.fromCharCode(97 + vertexIndex) ]
+];    
+    
+}
+
+
 function update()
 {
 	var delta = clock.getDelta(); // seconds.
@@ -232,13 +247,13 @@ function update()
 	// local transformations
 
 	// move forwards/backwards/left/right
-	if ( keyboard.pressed("W") )
+	if ( keyboard.pressed("W") || keyboard.pressed("up") )
 		movingCube.translateZ( -moveDistance );
-	if ( keyboard.pressed("S") )
+	if ( keyboard.pressed("S") || keyboard.pressed("down"))
 		movingCube.translateZ(  moveDistance );
-	if ( keyboard.pressed("A") )
+	if ( keyboard.pressed("A") || keyboard.pressed("left"))
 		movingCube.translateX( -moveDistance );
-	if ( keyboard.pressed("D") )
+	if ( keyboard.pressed("D") || keyboard.pressed("right"))
 		movingCube.translateX(  moveDistance );	
 	
     
@@ -265,11 +280,7 @@ function update()
     
     if ( keyboard.pressed("C") )
 	{
-        console.log(renderedCube.geometry.faceVertexUvs);
-        
-        console.log(renderedCube.material.map);
-        
-        grabVertices(targetCube);
+//        console.log(uv2vert(targetCube))
 	}
     
     if(keyboard.pressed("X"))
@@ -319,12 +330,12 @@ function findDistBwPoints(originPoint, endPoint)
 
 function getWorldPosVertices(object)
 {
-//    object.updateMatrixWorld();
+    object.updateMatrixWorld();
     var container = [];
     for(var i = 0; i < object.geometry.vertices.length; i++)
     {
-        var vector = object.geometry.vertices[i];
-//        vector.applyMatrix4(object.matrixWorld);
+        var vector = object.geometry.vertices[i].clone();
+        vector.applyMatrix4(object.matrixWorld);
         container[i] = vector;
     }
     
@@ -374,18 +385,23 @@ function getWorldToXY(vertex, camera)
 {
     var p = point3D.clone();
 
-    camera.updateMatrix(); // make sure camera's local matrix is updated
-    camera.updateMatrixWorld(); // make sure camera's world matrix is updated
-    camera.matrixWorldInverse.getInverse( camera.matrixWorld );
-
-
+//    camera.updateMatrix(); // make sure camera's local matrix is updated
+//    camera.updateMatrixWorld(); // make sure camera's world matrix is updated
+//    camera.matrixWorldInverse.getInverse( camera.matrixWorld );
+    
+    var canvas = document.getElementById('TJSCanvas');
+    //console.log(canvas);
+    var width = renderer.context.canvas.width;
+    var height = renderer.context.canvas.height;
+  //  if(Math.random()>.99) console.log(canvass )
     var frustum = new THREE.Frustum();
     frustum.setFromMatrix( new THREE.Matrix4().multiplyMatrices( camera.projectionMatrix, camera.matrixWorldInverse ) );
 
-    if(1 || frustum.containsPoint( p )) {
+    if(1 || frustum.containsPoint( p )) {        
       var vector = p.project(camera);
-      vector.x = (vector.x + 1) / 2 ;
-      vector.y = -(vector.y - 1) / 2;
+      
+      vector.x = (vector.x + 1)   * width/2;
+      vector.y = -(vector.y - 1) * height/2;
 
       return vector;
     } else { return false}
@@ -393,6 +409,15 @@ function getWorldToXY(vertex, camera)
 
  }
 
+function calc2DPoint(worldVector)
+{
+    var vector = worldVector.project(mainCamera);
+
+    var result = new Object();
+    result.x = Math.floor(vector.x * (renderer.domElement.width/2));
+    result.y = Math.floor(vector.y * (renderer.domElement.height/2));
+    return result;
+}
 
 function grabVertices(object)
 {
@@ -455,7 +480,7 @@ function render()
 	//    so that it does not obscure the view from the camera.
 	movingCube.visible = false;	
 	// put the result of textureCamera into the first texture.
-	renderer.render( scene, textureCamera, firstRenderTarget, true );
+	renderer.render( scene, textureCamera, finalRenderTarget, true );
 	movingCube.visible = true;
 
 	// slight problem: texture is mirrored.
@@ -463,17 +488,22 @@ function render()
 	
 	// render another scene containing just a quad with the texture
 	//    and put the result into the final texture
-	renderer.render( screenScene, screenCamera, finalRenderTarget, true );
+	//renderer.render( screenScene, screenCamera, finalRenderTarget, true );
 	
 	// render the main scene
-	renderer.render( scene, textureCamera );
+	renderer.render( scene, mainCamera );
     
     renderer2.render(scene, textureCamera);
 //    drawPoint('TextureViewCanvas',.5,.5);
 
 // drawPoint('TextureViewCanvas',-1,-1);
-    $.each(targetCube.geometry.vertices,function(index,val){
-        var screenPoint = Point3DToScreen2D(val, textureCamera)
+    var worldTC = getWorldPosVertices(targetCube);
+    console.log(worldTC);
+    $.each(worldTC,function(index,val){
+      var screenPoint = Point3DToScreen2D(val, textureCamera)
+//      var screenPoint = calc2DPoint(val);
+       // var el=document.getElementById('TJSCanvas');
+      // var screenPoint = toScreenXY(val,mainCamera,el)
         drawPoint('TextureViewCanvas',screenPoint.x,screenPoint.y,index);
     });
 
@@ -482,11 +512,7 @@ function render()
 
 function drawPoint(canvasID,x,y,idx) 
 { 
-    var canvas = document.getElementById(canvasID);
-    console.log(canvas);
-    var width = canvas.width;
-    var height = canvas.height;
-    console.log(x * width, y * height);
+   // console.log(x * width, y * height);
 //    console.log(x * width, y * height);
-    $("#vert"+idx).css({"left":x*width,"top":y*height});
+    $("#vert"+idx).css({"left":(x)+"px","top":(y)+"px"});
 }     
