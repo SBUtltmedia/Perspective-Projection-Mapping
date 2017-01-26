@@ -188,7 +188,7 @@ function init()
 				
 	var screenGeometry = new THREE.PlaneGeometry( window.innerWidth, window.innerHeight );
 	
-	firstRenderTarget = new THREE.WebGLRenderTarget( 512, 512, { format: THREE.RGBFormat } );	
+	firstRenderTarget = new THREE.WebGLRenderTarget( 1024 , 1024, { format: THREE.RGBFormat } );	
 	var screenMaterial = new THREE.MeshBasicMaterial( { map: firstRenderTarget } );
 	
 	var quad = new THREE.Mesh( screenGeometry, screenMaterial );
@@ -197,38 +197,18 @@ function init()
     				
 	// final version of camera texture, used in scene. 
     var renderedCubeGeom = new THREE.CubeGeometry( 120, 120, 120);
-	finalRenderTarget = new THREE.WebGLRenderTarget( 512, 512, { format: THREE.RGBFormat } );
-	var planeMaterial = new THREE.MeshBasicMaterial( { map: finalRenderTarget } );
+	finalRenderTarget = new THREE.WebGLRenderTarget( 1024, 1024, { format: THREE.RGBFormat } );
+	var planeMaterial = new THREE.MeshBasicMaterial( { map: finalRenderTarget.texture } );
     
     console.log(finalRenderTarget);
 	renderedCube = new THREE.Mesh( renderedCubeGeom, planeMaterial );
+    
 	renderedCube.position.set(0,renderedCubeGeom.parameters.height / 2 ,-200);
     renderedCube.name = "CubeRenderTarget";
     renderedCube.rotation.y = -Math.PI/2;
 	scene.add(renderedCube);
-    
-    
-//    var spriteMaterial = new THREE.SpriteMaterial( { map: finalRenderTarget } );
-////    var sWidth = spriteMaterial.map.image.width;
-////    var sHeight = spriteMaterial.map.image.height;
-//    var sprite = new THREE.Sprite( spriteMaterial );
-//    sprite.scale.set( 300, 300, 1 );
-//    sprite.position.set(0, 100, 1);
-//    scene.add( sprite );
-//    
-//    
-//    
-   
-
-	
 }
 
-function animate() 
-{
-    requestAnimationFrame( animate );
-	render();		
-	update();
-}
 
 function uv2vert(geometry,faceIndex,vertexIndex){
     
@@ -244,22 +224,51 @@ function update()
 	var delta = clock.getDelta(); // seconds.
 	var moveDistance = 200 * delta; // 200 pixels per second
 	var rotateAngle = Math.PI / 2 * delta;   // pi/2 radians (90 degrees) per second
+    var angleLimit = 0.894;
 	// local transformations
 
 	// move forwards/backwards/left/right
 	if ( keyboard.pressed("W") || keyboard.pressed("up") )
+    {
 		movingCube.translateZ( -moveDistance );
+//        translateUV(renderedCube.geometry, new THREE.Vector2(0, moveDistance / 500));    
+    }
 	if ( keyboard.pressed("S") || keyboard.pressed("down"))
+    {
 		movingCube.translateZ(  moveDistance );
+//        translateUV(renderedCube.geometry, new THREE.Vector2(0, -moveDistance / 500));    
+    }
 	if ( keyboard.pressed("A") || keyboard.pressed("left"))
-		movingCube.translateX( -moveDistance );
+	{
+        if(movingCube.rotation.y <= angleLimit)
+        {
+            movingCube.translateX( -moveDistance );
+            var worldTC = getWorldPosVertices(targetCube);
+            $.each(worldTC,function(index , val){
+                var screenPoint = Point3DToScreen2D(val, textureCamera)
+                var normed = normPoint('TextureViewCanvas',screenPoint.x,screenPoint.y,index);
+                translateUV(renderedCube.geometry, makeVector2(0, 0));    
+            });
+        }
+        
+    }
 	if ( keyboard.pressed("D") || keyboard.pressed("right"))
-		movingCube.translateX(  moveDistance );	   
+    {
+        if(movingCube.rotation.y >= -angleLimit)
+        {
+		    movingCube.translateX(  moveDistance );	 
+            var worldTC = getWorldPosVertices(targetCube);
+            $.each(worldTC,function(index , val){
+                var screenPoint = Point3DToScreen2D(val, textureCamera)
+                var normed = normPoint('TextureViewCanvas',screenPoint.x,screenPoint.y,index);
+                translateUV(renderedCube.geometry, makeVector2(normed[0], 0));    
+            });
+        }
+    }
     
 	movingCube.lookAt(targetCube.position);			
 	stats.update();
 }
-
 
 function getWorldPosVertices(object)
 {
@@ -289,7 +298,7 @@ function getWorldPosVertices(object)
     var frustum = new THREE.Frustum();
     frustum.setFromMatrix( new THREE.Matrix4().multiplyMatrices( camera.projectionMatrix, camera.matrixWorldInverse ) );
 
-    if(1 || frustum.containsPoint( p )) {        
+    if(frustum.containsPoint( p )) {        
       var vector = p.project(camera);
       
       vector.x = (vector.x + 1)   * width/2;
@@ -300,6 +309,47 @@ function getWorldPosVertices(object)
 
 
  }
+
+function translateUV(geo, transVec)
+{
+    
+    fuvs = geo.faceVertexUvs;
+    fuvs.forEach(function(val, index, array )
+    {
+        val.forEach(function(vec, index, array )
+        {
+            for(var j = 0; j < 3; j++)
+            {
+               
+                
+                var dx = (vec[j].x - (transVec.x * 0.005)) ;
+                var dy = (vec[j].y - (transVec.y * 0.005));
+                
+                 if(transVec.x == 0)
+                    dx = 0;
+                
+                if(transVec.y == 0)
+                    dy = 0;
+                
+//                console.log( dx, dy );
+                vec[j].x += dx;
+                vec[j].y += dy;
+
+                geo.uvsNeedUpdate = true;
+            } 
+
+        });
+    });
+
+}
+
+function animate() 
+{
+    requestAnimationFrame( animate );
+	render();		
+	update();
+}
+
 
 function render() 
 {
@@ -325,19 +375,32 @@ function render()
     renderer2.render(scene, textureCamera);
     
     var worldTC = getWorldPosVertices(targetCube);
-    console.log(worldTC);
     $.each(worldTC,function(index,val){
       var screenPoint = Point3DToScreen2D(val, textureCamera)
-
-        drawPoint('TextureViewCanvas',screenPoint.x,screenPoint.y,index);
+      drawPoint('TextureViewCanvas',screenPoint.x,screenPoint.y,index);
+        
     });
-
     
 }
 
+function makeVector2(points)
+{
+
+        return new THREE.Vector2(points[0], points[1]);
+
+}
+
+function normPoint(canvasID,x,y,idx)
+{
+    var can = document.getElementById(canvasID);
+    return [x / can.width, -y / can.width]
+    
+}
 function drawPoint(canvasID,x,y,idx) 
 { 
+    var can = document.getElementById(canvasID);
    // console.log(x * width, y * height);
 //    console.log(x * width, y * height);
     $("#vert"+idx).css({"left":(x)+"px","top":(y)+"px"});
+    return [x / can.width, -y / can.width]
 }     
