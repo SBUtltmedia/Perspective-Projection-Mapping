@@ -254,79 +254,12 @@ function update()
 	if ( keyboard.pressed("A") || keyboard.pressed("left"))
 		movingCube.translateX( -moveDistance );
 	if ( keyboard.pressed("D") || keyboard.pressed("right"))
-		movingCube.translateX(  moveDistance );	
-	
+		movingCube.translateX(  moveDistance );	   
     
-    
-	if ( keyboard.pressed("Z") && !pressed)
-	{
-        pressed = true;
-//        console.log(findRaycasterIntersections(movingCube, new THREE.Vector3(0,0,1), targetCube));
-        var targCubeVx = getWorldPosVertices(targetCube);        
-        var throwaway = new THREE.Object3D();
-        for(var k = 0; k < targCubeVx.length; k++)
-        {
-            throwaway.position.x = targCubeVx[k].x;
-            throwaway.position.y = targCubeVx[k].y;
-            var interrim = getWorldToScreen(throwaway, mainCamera);
-            
-            drawPoint('TextureViewCanvas', interrim.x / renderer2.domElement.width - .5 , interrim.y / renderer2.domElement.height- .5);            
-            console.log(interrim);
-            console.log(renderer2.domElement.width);
-            
-            console.log(interrim.x / renderer2.domElement.width);
-        }
-	}
-    
-    if ( keyboard.pressed("C") )
-	{
-//        console.log(uv2vert(targetCube))
-	}
-    
-    if(keyboard.pressed("X"))
-    {
-//        
-        var targCubeVx = getWorldPosVertices(targetCube);        
-        var moveCubeVx = getWorldPosVertices(movingCube);   
- 
-        for(var c = 0; c < moveCubeVx.length; c++)
-        {
-            var distance = findDistBwPoints(moveCubeVx[c], targCubeVx[c]);
-            updateUVS(renderedCube, 0, plus, targCubeVx);
-
-        }
-        
-        
-        
-    }
-    
-    if ( keyboard.pressed("O") )
-        grow = true;
-    if ( keyboard.pressed("P") )
-        grow = false; 
-    
-    if(grow);
-//        plus += delta * 0.3;
-           
-
-
 	movingCube.lookAt(targetCube.position);			
 	stats.update();
 }
 
-
-function findRaycasterIntersections(originObj, direction, object)
-{
-     raycaster.set(originObj.position, direction);
-     return raycaster.intersectObject(object);
-}
-
-//originPoint and endPoint are Vector3s
-function findDistBwPoints(originPoint, endPoint)
-{
-    return originPoint.distanceTo(endPoint);
-
-}
 
 function getWorldPosVertices(object)
 {
@@ -343,57 +276,16 @@ function getWorldPosVertices(object)
     
 }
 
-//function getWorldToScreen(object, camera)
-//{
-//     var vector = new THREE.Vector3();
-//     var projector = new THREE.Projector();
-//     
-//     var widthHalf = 0.5*renderer.context.canvas.width;
-//     var heightHalf = 0.5*renderer.context.canvas.height;
-// 
-//     object.updateMatrixWorld();
-//     projector.projectVector(vector.applyMatrix4(object.matrixWorld), camera);
-// 
-//     vector.x = ( vector.x * widthHalf ) + widthHalf;
-//     vector.y = - ( vector.y * heightHalf ) + heightHalf;
-// 
-//     return { 
-//         x: vector.x,
-//         y: vector.y
-//     };
-//}
 
-
-function getWorldToXY(vertex, camera)
-{
-     var vector = vertex.clone();
-    vector.project(camera)
-     
-     var widthHalf = 0.5*renderer.context.canvas.width;
-     var heightHalf = 0.5*renderer.context.canvas.height;
- 
-     
- 
-    vector.x =  vector.x/20 +1; 
-     vector.y = -vector.y/20  +1;
- //vector.x=2;
-  //  console.log(vector.x , -vector.y / 40 + 1);
-     return vector;
-}
 
  function Point3DToScreen2D(point3D,camera)
 {
     var p = point3D.clone();
 
-//    camera.updateMatrix(); // make sure camera's local matrix is updated
-//    camera.updateMatrixWorld(); // make sure camera's world matrix is updated
-//    camera.matrixWorldInverse.getInverse( camera.matrixWorld );
-    
     var canvas = document.getElementById('TJSCanvas');
-    //console.log(canvas);
     var width = renderer.context.canvas.width;
     var height = renderer.context.canvas.height;
-  //  if(Math.random()>.99) console.log(canvass )
+
     var frustum = new THREE.Frustum();
     frustum.setFromMatrix( new THREE.Matrix4().multiplyMatrices( camera.projectionMatrix, camera.matrixWorldInverse ) );
 
@@ -408,69 +300,6 @@ function getWorldToXY(vertex, camera)
 
 
  }
-
-function calc2DPoint(worldVector)
-{
-    var vector = worldVector.project(mainCamera);
-
-    var result = new Object();
-    result.x = Math.floor(vector.x * (renderer.domElement.width/2));
-    result.y = Math.floor(vector.y * (renderer.domElement.height/2));
-    return result;
-}
-
-function grabVertices(object)
-{
-   console.log(object.geometry);
-   
-}
-
-function updateUVS(object, addU, addV, targetArr)
-{
-    var fuvs = object.geometry.faceVertexUvs;
-    object.geometry.computeBoundingBox();
-    
-    var min = object.geometry.boundingBox.min;
-    var max = object.geometry.boundingBox.max;
-
-    for(var i = 0; i < fuvs.length; i+=2)
-    {
-//        fuvs[0][i] = [];
-        
-        //This is the default texture mapping
-            fuvs[0][i] = [ new THREE.Vector2(0 , addV), new THREE.Vector2(0, 0), new THREE.Vector2(addV, addV)];
-            fuvs[0][++i] = [ new THREE.Vector2(0, 0),  new THREE.Vector2(addV , 0),new THREE.Vector2(addV, addV)];
-//        console.log(fuvs[0][i]);
-    }
-    
-    object.geometry.uvsNeedUpdate = true;
-    
-//    for(var j = 0; j < targetArr.length; j++)
-//    {
-//    console.log(planePosToTextureWorld(object, object.position));
-    
-}
-
-function texturePosToPlaneWorld(planeOb, texcoord)
-{    
-    var pos = new THREE.Vector3();
-    pos.x = (texcoord.x - 0.5) * 512;
-    pos.y = (texcoord.y - 0.5) * 512;
-
-    pos.applyMatrix4(planeOb.matrix);
-    return pos;
-}
-
-function planePosToTextureWorld(planeOb, worldcoord)
-{    
-    var pos = new THREE.Vector3();
-    pos.x = (worldcoord.x) / 512;
-    pos.y = (worldcoord.y) / 512;
-
-    pos.applyMatrix4(new THREE.Matrix4(0, 0, 512, 512));
-    return pos;
-}
-
 
 function render() 
 {
@@ -494,16 +323,12 @@ function render()
 	renderer.render( scene, mainCamera );
     
     renderer2.render(scene, textureCamera);
-//    drawPoint('TextureViewCanvas',.5,.5);
-
-// drawPoint('TextureViewCanvas',-1,-1);
+    
     var worldTC = getWorldPosVertices(targetCube);
     console.log(worldTC);
     $.each(worldTC,function(index,val){
       var screenPoint = Point3DToScreen2D(val, textureCamera)
-//      var screenPoint = calc2DPoint(val);
-       // var el=document.getElementById('TJSCanvas');
-      // var screenPoint = toScreenXY(val,mainCamera,el)
+
         drawPoint('TextureViewCanvas',screenPoint.x,screenPoint.y,index);
     });
 
