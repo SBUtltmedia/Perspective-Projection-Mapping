@@ -212,7 +212,7 @@ function init()
     movingCube.add(textureCamera);
 	scene.add( movingCube );	
     
-    var blueMaterial = new THREE.MeshBasicMaterial( { color: 0x0000ff, transparent: true, opacity: 0.65, overdraw:0.5 } );
+    var blueMaterial = new THREE.MeshBasicMaterial( { color: 0x0000ff, transparent: true, opacity: 0.25, overdraw:0.5 } );
 	var cubeGeometry = new THREE.CubeGeometry( 100, 100, 100);
     targetCube = new THREE.Mesh( cubeGeometry , blueMaterial );
     
@@ -362,71 +362,25 @@ function getWorldPosVertices(object)
 
 function translateUV(geo, pnt)
 {
-    
+    //Okay, so this function grabs the normalized point that corresponds to the vertex that forms a face on the target cube. Then, it uses that point to create triangles for the face vertex uvs (fuvs), 12 in total. 
     fuvs = geo.faceVertexUvs;
+    fuvs[0] = [];
     
     //These'll be reused
     var tri1, tri2, tri3;
     
-    tri1 = new THREE.Vector2(pnt[tcFaces[0][2]][0], pnt[tcFaces[0][2]][1]);
-    tri2 = new THREE.Vector2(pnt[tcFaces[0][1]][0], pnt[tcFaces[0][1]][1]);
-    tri3 = new THREE.Vector2(pnt[tcFaces[0][3]][0], pnt[tcFaces[0][3]][1]);
-    fuvs[0][0] = [tri1, tri2, tri3];
+    for(var k = 0; k < 12; k++)
+    {
+        for(var j = 0; j < 6; j++)
+        {
+            tri1 = new THREE.Vector2(pnt[tcFaces[j][2]][0], pnt[tcFaces[j][2]][1]);
+            tri2 = new THREE.Vector2(pnt[tcFaces[j][1]][0], pnt[tcFaces[j][1]][1]);
+            tri3 = new THREE.Vector2(pnt[tcFaces[j][3]][0], pnt[tcFaces[j][3]][1]);
+        }
     
-    tri1 = new THREE.Vector2(pnt[tcFaces[0][1]][0], pnt[tcFaces[0][1]][1]);
-    tri2 = new THREE.Vector2(pnt[tcFaces[0][0]][0], pnt[tcFaces[0][0]][1]);
-    tri3 = new THREE.Vector2(pnt[tcFaces[0][3]][0], pnt[tcFaces[0][3]][1]);
-    fuvs[0][1] = [tri1, tri2, tri3];
-    
-    tri1 = new THREE.Vector2(pnt[tcFaces[1][2]][0], pnt[tcFaces[1][2]][1]);
-    tri2 = new THREE.Vector2(pnt[tcFaces[1][1]][0], pnt[tcFaces[1][1]][1]);
-    tri3 = new THREE.Vector2(pnt[tcFaces[1][3]][0], pnt[tcFaces[1][3]][1]);
-    fuvs[0][2] = [tri1, tri2, tri3];
-    
-    tri1 = new THREE.Vector2(pnt[tcFaces[1][1]][0], pnt[tcFaces[1][1]][1]);
-    tri2 = new THREE.Vector2(pnt[tcFaces[1][0]][0], pnt[tcFaces[1][0]][1]);
-    tri3 = new THREE.Vector2(pnt[tcFaces[1][3]][0], pnt[tcFaces[1][3]][1]);
-    fuvs[0][3] = [tri1, tri2, tri3];
-
-    tri1 = new THREE.Vector2(pnt[tcFaces[2][2]][0], pnt[tcFaces[2][2]][1]);
-    tri2 = new THREE.Vector2(pnt[tcFaces[2][1]][0], pnt[tcFaces[2][1]][1]);
-    tri3 = new THREE.Vector2(pnt[tcFaces[2][3]][0], pnt[tcFaces[2][3]][1]);
-    fuvs[0][4] = [tri1, tri2, tri3];
-    
-    tri1 = new THREE.Vector2(pnt[tcFaces[2][1]][0], pnt[tcFaces[2][1]][1]);
-    tri2 = new THREE.Vector2(pnt[tcFaces[2][0]][0], pnt[tcFaces[2][0]][1]);
-    tri3 = new THREE.Vector2(pnt[tcFaces[2][3]][0], pnt[tcFaces[2][3]][1]);
-    fuvs[0][5] = [tri1, tri2, tri3];
-    
-    tri1 = new THREE.Vector2(pnt[tcFaces[3][2]][0], pnt[tcFaces[3][2]][1]);
-    tri2 = new THREE.Vector2(pnt[tcFaces[3][1]][0], pnt[tcFaces[3][1]][1]);
-    tri3 = new THREE.Vector2(pnt[tcFaces[3][3]][0], pnt[tcFaces[3][3]][1]);
-    fuvs[0][6] = [tri1, tri2, tri3];
-    
-    tri1 = new THREE.Vector2(pnt[tcFaces[3][1]][0], pnt[tcFaces[3][1]][1]);
-    tri2 = new THREE.Vector2(pnt[tcFaces[3][0]][0], pnt[tcFaces[3][0]][1]);
-    tri3 = new THREE.Vector2(pnt[tcFaces[3][3]][0], pnt[tcFaces[3][3]][1]);
-    fuvs[0][7] = [tri1, tri2, tri3];
-    
-    tri1 = new THREE.Vector2(pnt[tcFaces[4][2]][0], pnt[tcFaces[4][2]][1]);
-    tri2 = new THREE.Vector2(pnt[tcFaces[4][1]][0], pnt[tcFaces[4][1]][1]);
-    tri3 = new THREE.Vector2(pnt[tcFaces[4][3]][0], pnt[tcFaces[4][3]][1]);
-    fuvs[0][8] = [tri1, tri2, tri3];
-    
-    tri1 = new THREE.Vector2(pnt[tcFaces[4][1]][0], pnt[tcFaces[4][1]][1]);
-    tri2 = new THREE.Vector2(pnt[tcFaces[4][0]][0], pnt[tcFaces[4][0]][1]);
-    tri3 = new THREE.Vector2(pnt[tcFaces[4][3]][0], pnt[tcFaces[4][3]][1]);
-    fuvs[0][9] = [tri1, tri2, tri3];
-    
-    tri1 = new THREE.Vector2(pnt[tcFaces[5][2]][0], pnt[tcFaces[5][2]][1]);
-    tri2 = new THREE.Vector2(pnt[tcFaces[5][1]][0], pnt[tcFaces[5][1]][1]);
-    tri3 = new THREE.Vector2(pnt[tcFaces[5][3]][0], pnt[tcFaces[5][3]][1]);
-    fuvs[0][10] = [tri1, tri2, tri3];
-    
-    tri1 = new THREE.Vector2(pnt[tcFaces[5][1]][0], pnt[tcFaces[5][1]][1]);
-    tri2 = new THREE.Vector2(pnt[tcFaces[5][0]][0], pnt[tcFaces[5][0]][1]);
-    tri3 = new THREE.Vector2(pnt[tcFaces[5][3]][0], pnt[tcFaces[5][3]][1]);
-    fuvs[0][11] = [tri1, tri2, tri3];
+        fuvs[0][k] = [tri1, tri2, tri3];
+    }
+   
     
     geo.uvsNeedUpdate = true;
 
@@ -475,6 +429,7 @@ function animate()
 {
     objOfInterest.rotation.x += .04;
     objOfInterest.rotation.y += .02;
+
     requestAnimationFrame( animate );
 	render();		
     ppmCamera();
