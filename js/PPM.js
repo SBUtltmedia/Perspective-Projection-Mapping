@@ -26,6 +26,10 @@ var raycaster;
 var screenScene, screenCamera, firstRenderTarget, finalRenderTarget;
 var plus = 0;
 var grow = true;
+
+//Definition of UV Tris/Mesh Faces on target cube
+var tcTris;
+var tcFaces;
 $(function() 
 {
     init();
@@ -142,6 +146,53 @@ function init()
 	// CUSTOM //
 	////////////
 	
+    
+    //DEFINES THE TRIANGLES OF THE TARGET CUBE FOR THE DIVS
+    tcTris = 
+    [
+        [
+            [2, 1, 0],
+            [3, 2, 1]
+        ],
+        
+        [
+            [3, 4, 1],
+            [6, 3, 4]
+        ],
+        
+        [
+            [6, 5, 4],
+            [7, 6, 4]
+        ],
+        
+        [
+            [7, 5, 0],
+            [7, 2, 0]
+        ],
+        
+        [
+            [2, 3, 7],
+            [3, 7, 6]
+        ],
+        
+        [
+            [5, 0, 1],
+            [4, 5, 1]
+        ]
+        
+    ]
+    
+    
+    //DEFINS THE FACES OF IBID
+    tcFaces =
+    [
+        [2, 0, 1, 3],
+        [3, 1, 4, 6],
+        [6, 4, 5, 7],
+        [7, 5, 0, 2],
+        [0, 5, 4, 1],
+        [2, 7, 6, 3]
+    ]
 	// create an array with six textures for a cool cube
 	var materialArray = [];
 	materialArray.push(new THREE.MeshBasicMaterial( { map: THREE.ImageUtils.loadTexture( 'images/xpos.png' ), overdraw:0.5}));
@@ -240,40 +291,30 @@ function update()
 	if ( keyboard.pressed("W") || keyboard.pressed("up") )
     {
 		movingCube.translateZ( -moveDistance );
-//        translateUV(renderedCube.geometry, new THREE.Vector2(0, moveDistance / 500));    
     }
+    
 	if ( keyboard.pressed("S") || keyboard.pressed("down"))
     {
 		movingCube.translateZ(  moveDistance );
-//        translateUV(renderedCube.geometry, new THREE.Vector2(0, -moveDistance / 500));    
     }
+    
 	if ( keyboard.pressed("A") || keyboard.pressed("left"))
 	{
         if(movingCube.rotation.y <= angleLimit)
         {
             movingCube.translateX( -moveDistance );
-            var worldTC = getWorldPosVertices(targetCube);
-            $.each(worldTC,function(index , val){
-                var screenPoint = Point3DToScreen2D(val, textureCamera)
-                var normed = normPoint('TextureViewCanvas',screenPoint.x,screenPoint.y,index);
-                translateUV(renderedCube.geometry, makeVector2(-normed[0], 0));    
-            });
-        }
-        
+        }    
     }
 	if ( keyboard.pressed("D") || keyboard.pressed("right"))
     {
         if(movingCube.rotation.y >= -angleLimit)
         {
 		    movingCube.translateX(  moveDistance );	 
-            var worldTC = getWorldPosVertices(targetCube);
-            $.each(worldTC,function(index , val){
-                var screenPoint = Point3DToScreen2D(val, textureCamera)
-                var normed = normPoint('TextureViewCanvas',screenPoint.x,screenPoint.y,index);
-                translateUV(renderedCube.geometry, makeVector2(normed[0], 0));    
-            });
         }
     }
+
+    if ( keyboard.pressed("V"))
+        console.log(renderedCube.geometry.faceVertexUvs);
     
 	movingCube.lookAt(targetCube.position);			
 	stats.update();
@@ -319,37 +360,115 @@ function getWorldPosVertices(object)
 
  }
 
-function translateUV(geo, transVec)
+function translateUV(geo, pnt)
 {
     
     fuvs = geo.faceVertexUvs;
-    fuvs.forEach(function(val, index, array )
+    
+    //These'll be reused
+    var tri1, tri2, tri3;
+    
+    tri1 = new THREE.Vector2(pnt[tcFaces[0][2]][0], pnt[tcFaces[0][2]][1]);
+    tri2 = new THREE.Vector2(pnt[tcFaces[0][1]][0], pnt[tcFaces[0][1]][1]);
+    tri3 = new THREE.Vector2(pnt[tcFaces[0][3]][0], pnt[tcFaces[0][3]][1]);
+    fuvs[0][0] = [tri1, tri2, tri3];
+    
+    tri1 = new THREE.Vector2(pnt[tcFaces[0][1]][0], pnt[tcFaces[0][1]][1]);
+    tri2 = new THREE.Vector2(pnt[tcFaces[0][0]][0], pnt[tcFaces[0][0]][1]);
+    tri3 = new THREE.Vector2(pnt[tcFaces[0][3]][0], pnt[tcFaces[0][3]][1]);
+    fuvs[0][1] = [tri1, tri2, tri3];
+    
+    tri1 = new THREE.Vector2(pnt[tcFaces[1][2]][0], pnt[tcFaces[1][2]][1]);
+    tri2 = new THREE.Vector2(pnt[tcFaces[1][1]][0], pnt[tcFaces[1][1]][1]);
+    tri3 = new THREE.Vector2(pnt[tcFaces[1][3]][0], pnt[tcFaces[1][3]][1]);
+    fuvs[0][2] = [tri1, tri2, tri3];
+    
+    tri1 = new THREE.Vector2(pnt[tcFaces[1][1]][0], pnt[tcFaces[1][1]][1]);
+    tri2 = new THREE.Vector2(pnt[tcFaces[1][0]][0], pnt[tcFaces[1][0]][1]);
+    tri3 = new THREE.Vector2(pnt[tcFaces[1][3]][0], pnt[tcFaces[1][3]][1]);
+    fuvs[0][3] = [tri1, tri2, tri3];
+
+    tri1 = new THREE.Vector2(pnt[tcFaces[2][2]][0], pnt[tcFaces[2][2]][1]);
+    tri2 = new THREE.Vector2(pnt[tcFaces[2][1]][0], pnt[tcFaces[2][1]][1]);
+    tri3 = new THREE.Vector2(pnt[tcFaces[2][3]][0], pnt[tcFaces[2][3]][1]);
+    fuvs[0][4] = [tri1, tri2, tri3];
+    
+    tri1 = new THREE.Vector2(pnt[tcFaces[2][1]][0], pnt[tcFaces[2][1]][1]);
+    tri2 = new THREE.Vector2(pnt[tcFaces[2][0]][0], pnt[tcFaces[2][0]][1]);
+    tri3 = new THREE.Vector2(pnt[tcFaces[2][3]][0], pnt[tcFaces[2][3]][1]);
+    fuvs[0][5] = [tri1, tri2, tri3];
+    
+    tri1 = new THREE.Vector2(pnt[tcFaces[3][2]][0], pnt[tcFaces[3][2]][1]);
+    tri2 = new THREE.Vector2(pnt[tcFaces[3][1]][0], pnt[tcFaces[3][1]][1]);
+    tri3 = new THREE.Vector2(pnt[tcFaces[3][3]][0], pnt[tcFaces[3][3]][1]);
+    fuvs[0][6] = [tri1, tri2, tri3];
+    
+    tri1 = new THREE.Vector2(pnt[tcFaces[3][1]][0], pnt[tcFaces[3][1]][1]);
+    tri2 = new THREE.Vector2(pnt[tcFaces[3][0]][0], pnt[tcFaces[3][0]][1]);
+    tri3 = new THREE.Vector2(pnt[tcFaces[3][3]][0], pnt[tcFaces[3][3]][1]);
+    fuvs[0][7] = [tri1, tri2, tri3];
+    
+    tri1 = new THREE.Vector2(pnt[tcFaces[4][2]][0], pnt[tcFaces[4][2]][1]);
+    tri2 = new THREE.Vector2(pnt[tcFaces[4][1]][0], pnt[tcFaces[4][1]][1]);
+    tri3 = new THREE.Vector2(pnt[tcFaces[4][3]][0], pnt[tcFaces[4][3]][1]);
+    fuvs[0][8] = [tri1, tri2, tri3];
+    
+    tri1 = new THREE.Vector2(pnt[tcFaces[4][1]][0], pnt[tcFaces[4][1]][1]);
+    tri2 = new THREE.Vector2(pnt[tcFaces[4][0]][0], pnt[tcFaces[4][0]][1]);
+    tri3 = new THREE.Vector2(pnt[tcFaces[4][3]][0], pnt[tcFaces[4][3]][1]);
+    fuvs[0][9] = [tri1, tri2, tri3];
+    
+    tri1 = new THREE.Vector2(pnt[tcFaces[5][2]][0], pnt[tcFaces[5][2]][1]);
+    tri2 = new THREE.Vector2(pnt[tcFaces[5][1]][0], pnt[tcFaces[5][1]][1]);
+    tri3 = new THREE.Vector2(pnt[tcFaces[5][3]][0], pnt[tcFaces[5][3]][1]);
+    fuvs[0][10] = [tri1, tri2, tri3];
+    
+    tri1 = new THREE.Vector2(pnt[tcFaces[5][1]][0], pnt[tcFaces[5][1]][1]);
+    tri2 = new THREE.Vector2(pnt[tcFaces[5][0]][0], pnt[tcFaces[5][0]][1]);
+    tri3 = new THREE.Vector2(pnt[tcFaces[5][3]][0], pnt[tcFaces[5][3]][1]);
+    fuvs[0][11] = [tri1, tri2, tri3];
+    
+    geo.uvsNeedUpdate = true;
+
+
+}
+
+function findDupFuvs(pntArr)
+{
+    var dups = [];
+//    var temp = -1;
+    
+    //Creates a new vector2 for every unique ordered pair
+    //So, in the end there should be 7 unique vector2s...right?
+    //Right.
+    for(var i = 0; i < pntArr.length; i++)
     {
-        val.forEach(function(vec, index, array )
+       var len2 = pntArr[i].length;
+       for(var j = 0; j < len2; j++)
         {
-            for(var j = 0; j < 3; j++)
+            var temp = makeVector2(pntArr[i][j]);
+            if(contains(dups, temp) == false)
             {
-               
-                
-                var dx = (vec[j].x - (transVec.x * 0.05));
-                var dy = (vec[j].y - (transVec.y * 0.05));
-                
-                 if(transVec.x == 0)
-                    dx = 0;
-                
-                if(transVec.y == 0)
-                    dy = 0;
-                
-//                console.log( dx, dy );
-                vec[j].x += dx;
-                vec[j].y += dy;
+                dups.push(temp);
+            }
+        }
+    }
+    
+    return dups;
+}
 
-                geo.uvsNeedUpdate = true;
-            } 
-
-        });
-    });
-
+function contains(arr, obj)
+{
+    
+    for(var i = 0; i < arr.length; i++)
+    {
+        var comp = new THREE.Vector2(arr[i].x, arr[i].y);
+//        console.log(comp);
+        if(comp.x == obj.x && comp.y == obj.y)
+            return true;
+    }
+    
+    return false;
 }
 
 function animate() 
@@ -358,6 +477,7 @@ function animate()
     objOfInterest.rotation.y += .02;
     requestAnimationFrame( animate );
 	render();		
+    ppmCamera();
 	update();
 }
 
@@ -401,10 +521,26 @@ function makeVector2(points)
 
 }
 
-function normPoint(canvasID,x,y,idx)
+function ppmCamera()
+{
+    var worldTC = getWorldPosVertices(targetCube); // 8 of these total (0 - 7)
+        var targs = [];
+        
+        $.each(worldTC,function(index,val)
+        {
+            var screenPoint = Point3DToScreen2D(val, textureCamera);
+            targs.push(normPoint('TextureViewCanvas', screenPoint.x, -screenPoint.y));
+        });
+        
+        translateUV(renderedCube.geometry, targs);
+        
+}
+
+function normPoint(canvasID,x,y)
 {
     var can = document.getElementById(canvasID);
-    return [x / can.width, -y / can.width]
+//    console.log(can.width, can.height);
+    return [x / (can.width), -y / (can.height)]
     
 }
 function drawPoint(canvasID,x,y,idx) 
