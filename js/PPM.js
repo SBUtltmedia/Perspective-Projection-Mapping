@@ -19,7 +19,7 @@ var pressed = false;
 
 var interrim, throwaway;
 // custom global variables
-var movingCube, targetCube, renderedCube;
+var movingCube, targetCube, renderedCube, objOfInterest;
 var textureCamera, mainCamera;
 var raycaster;
 // intermediate scene for reflecting the reflection
@@ -153,21 +153,30 @@ function init()
 	var movingCubeMat = new THREE.MeshFaceMaterial(materialArray);
 	var movingCubeGeom = new THREE.CubeGeometry( 50, 50, 50, 1, 1, 1, materialArray );
 	movingCube = new THREE.Mesh( movingCubeGeom, movingCubeMat );
-	movingCube.position.set(0, 25.1, 0);
+	movingCube.position.set(286, 160, 118);
     movingCube.name = "Projector"
     var fixedRotation = new THREE.Matrix4().makeRotationY(Math.PI);
     textureCamera.applyMatrix(fixedRotation);
     
     movingCube.add(textureCamera);
 	scene.add( movingCube );	
-    var blueMaterial = new THREE.MeshBasicMaterial( { color: 0x0000ff, transparent: true, opacity: 0.9, overdraw:0.5 } );
-	var cubeGeometry = new THREE.CubeGeometry( 100, 20, 200);
+    
+    var blueMaterial = new THREE.MeshBasicMaterial( { color: 0x0000ff, transparent: true, opacity: 0.65, overdraw:0.5 } );
+	var cubeGeometry = new THREE.CubeGeometry( 100, 100, 100);
     targetCube = new THREE.Mesh( cubeGeometry , blueMaterial );
+    
+    var icoMat = new THREE.MeshNormalMaterial({shading: THREE.FlatShading});
+    var icoGeo = new THREE.IcosahedronGeometry(50, 0);
+    objOfInterest = new THREE.Mesh(icoGeo, icoMat);
     
     console.log(cubeGeometry);
     targetCube.position.set(0, cubeGeometry.parameters.height / 2, 400);
+    objOfInterest.position.set(0, 50, 400);
+    
     targetCube.name = "Target Object";
     scene.add( targetCube );
+    scene.add(objOfInterest);
+    
 	// a little bit of scenery...
 	var ambientlight = new THREE.AmbientLight(0x111111);
 	scene.add( ambientlight );
@@ -247,7 +256,7 @@ function update()
             $.each(worldTC,function(index , val){
                 var screenPoint = Point3DToScreen2D(val, textureCamera)
                 var normed = normPoint('TextureViewCanvas',screenPoint.x,screenPoint.y,index);
-                translateUV(renderedCube.geometry, makeVector2(0, 0));    
+                translateUV(renderedCube.geometry, makeVector2(-normed[0], 0));    
             });
         }
         
@@ -301,7 +310,7 @@ function getWorldPosVertices(object)
     if(frustum.containsPoint( p )) {        
       var vector = p.project(camera);
       
-      vector.x = (vector.x + 1)   * width/2;
+      vector.x =  (vector.x + 1)  * width/2;
       vector.y = -(vector.y - 1) * height/2;
 
       return vector;
@@ -322,8 +331,8 @@ function translateUV(geo, transVec)
             {
                
                 
-                var dx = (vec[j].x - (transVec.x * 0.005)) ;
-                var dy = (vec[j].y - (transVec.y * 0.005));
+                var dx = (vec[j].x - (transVec.x * 0.05));
+                var dy = (vec[j].y - (transVec.y * 0.05));
                 
                  if(transVec.x == 0)
                     dx = 0;
@@ -345,6 +354,8 @@ function translateUV(geo, transVec)
 
 function animate() 
 {
+    objOfInterest.rotation.x += .04;
+    objOfInterest.rotation.y += .02;
     requestAnimationFrame( animate );
 	render();		
 	update();
