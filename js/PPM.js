@@ -146,52 +146,16 @@ function init()
 	// CUSTOM //
 	////////////
 	
-    
-    //DEFINES THE TRIANGLES OF THE TARGET CUBE FOR THE DIVS
-    tcTris = 
-    [
-        [
-            [2, 1, 0],
-            [3, 2, 1]
-        ],
-        
-        [
-            [3, 4, 1],
-            [6, 3, 4]
-        ],
-        
-        [
-            [6, 5, 4],
-            [7, 6, 4]
-        ],
-        
-        [
-            [7, 5, 0],
-            [7, 2, 0]
-        ],
-        
-        [
-            [2, 3, 7],
-            [3, 7, 6]
-        ],
-        
-        [
-            [5, 0, 1],
-            [4, 5, 1]
-        ]
-        
-    ]
-    
-    
-    //DEFINS THE FACES OF IBID
+    //Whoever works on this next, DO NOT delete or modify this array. It was carefully created by observing the faces of the renderedCube.
+    //DEFINES THE FACES OF IBID
     tcFaces =
     [
-        [2, 0, 1, 3],
-        [3, 1, 4, 6],
-        [6, 4, 5, 7],
-        [7, 5, 0, 2],
-        [0, 5, 4, 1],
-        [2, 7, 6, 3]
+        [0, 1, 2, 3],
+        [4, 5, 6, 7],
+        [4, 5, 1, 0],
+        [7, 2, 6, 3],
+        [5, 0, 7, 2],
+        [1, 4, 3, 6]
     ]
 	// create an array with six textures for a cool cube
 	var materialArray = [];
@@ -219,8 +183,7 @@ function init()
     var icoMat = new THREE.MeshNormalMaterial({shading: THREE.FlatShading});
     var icoGeo = new THREE.IcosahedronGeometry(50, 0);
     objOfInterest = new THREE.Mesh(icoGeo, icoMat);
-    
-    console.log(cubeGeometry);
+
     targetCube.position.set(0, cubeGeometry.parameters.height / 2, 400);
     objOfInterest.position.set(0, 50, 400);
     
@@ -257,10 +220,11 @@ function init()
     				
 	// final version of camera texture, used in scene. 
     var renderedCubeGeom = new THREE.CubeGeometry( 120, 120, 120);
+    var rktex = THREE.ImageUtils.loadTexture('images/rubix_cube2.jpg');
 	finalRenderTarget = new THREE.WebGLRenderTarget( 1024, 1024, { format: THREE.RGBFormat } );
 	var planeMaterial = new THREE.MeshBasicMaterial( { map: finalRenderTarget.texture } );
+//	var planeMaterial = new THREE.MeshBasicMaterial( { map: rktex} );
     
-    console.log(finalRenderTarget);
 	renderedCube = new THREE.Mesh( renderedCubeGeom, planeMaterial );
     
 	renderedCube.position.set(0,renderedCubeGeom.parameters.height / 2 ,-200);
@@ -314,8 +278,10 @@ function update()
     }
 
     if ( keyboard.pressed("V"))
-        console.log(renderedCube.geometry.faceVertexUvs);
-    
+    {
+        console.log(tcFaces)
+//        console.log(renderedCube.geometry.faceVertexUvs);
+    }
 	movingCube.lookAt(targetCube.position);			
 	stats.update();
 }
@@ -360,25 +326,28 @@ function getWorldPosVertices(object)
 
  }
 
+
+//MAIN TO-DO: Revise code so that the facevertexuvs correctly move with the vertices of the target cube 
 function translateUV(geo, pnt)
 {
     //Okay, so this function grabs the normalized point that corresponds to the vertex that forms a face on the target cube. Then, it uses that point to create triangles for the face vertex uvs (fuvs), 12 in total. 
     fuvs = geo.faceVertexUvs;
-    fuvs[0] = [];
     
-    //These'll be reused
-    var tri1, tri2, tri3;
+    
+    //These'll be reused...one day, maybe...
+//    var tri1, tri2, tri3;
+
     
     for(var k = 0; k < 12; k++)
     {
         for(var j = 0; j < 6; j++)
         {
-            tri1 = new THREE.Vector2(pnt[tcFaces[j][2]][0], pnt[tcFaces[j][2]][1]);
-            tri2 = new THREE.Vector2(pnt[tcFaces[j][1]][0], pnt[tcFaces[j][1]][1]);
-            tri3 = new THREE.Vector2(pnt[tcFaces[j][3]][0], pnt[tcFaces[j][3]][1]);
+             fuvs[0][k][0] = new THREE.Vector2(pnt[tcFaces[j][0]][0], pnt[tcFaces[j][0]][1]);
+             fuvs[0][k][1] = new THREE.Vector2(pnt[tcFaces[j][2]][0], pnt[tcFaces[j][2]][1]);
+             fuvs[0][k][2] = new THREE.Vector2(pnt[tcFaces[j][1]][0], pnt[tcFaces[j][1]][1]);
         }
     
-        fuvs[0][k] = [tri1, tri2, tri3];
+       
     }
    
     
