@@ -260,57 +260,42 @@ function init() {
     var color = new THREE.Color(0xffaa00); //optional
     var materialIndex = 0; //optional
 
-    //                var vertexUVS=
 
     var points = [
-
-
         //red
-        // red1=
         [
             [0.507120, 0.638653],
             [0.952325, 0.834875],
             [0.897624, 0.308543],
         ],
-        // red2=
         [
             [0.507120, 0.638653],
             [0.952325, 0.834875],
             [0.897624, 0.308543],
         ],
         //blue
-        // blue1=
         [
             [0.499073, 0.039900],
             [0.042908, 0.834260],
             [0.086556, 0.314496]
         ],
-        // blue2=
         [
             [0.507120, 0.638653],
             [0.042908, 0.834260],
             [0.499073, 0.039900],
         ],
         //yellow
-        // yellow1=
         [
             [0.491259, 0.982841],
             [0.507120, 0.638653],
             [0.042908, 0.834260],
         ],
-        // yellow2=
         [
             [0.507120, 0.638653],
             [0.491259, 0.982841],
             [0.042908, 0.834260],
         ]
     ];
-
-
-
-
-
-
 
     var faceInfo = [
         [4, 3, 0],
@@ -330,15 +315,12 @@ function init() {
 
 
     points.forEach(function(val, index, array) {
-        var faceUV = []
+        var faceUV = [];
         val.forEach(function(val2, index2, array2) {
-
             faceUV.push(new THREE.Vector2(val2[0], val2[1]));
         });
-        projectionCube.faceVertexUvs[0].push(faceUV)
+        projectionCube.faceVertexUvs[0].push(faceUV);
     });
-
-
 
 
     // change geometry -> projectionCube if used
@@ -459,15 +441,11 @@ function Point3DtoCoord(point3D, camera) {
 }
 
 
-
-
-
 function vectorToScreen(vector) {
     var width = renderer.context.canvas.width;
     var height = renderer.context.canvas.height;
     return new THREE.Vector2((vector.x + 1) * width / 2, vector.y = -(vector.y - 1) * height / 2);
 }
-
 
 
 //MAIN TO-DO: Revise code so that the facevertexuvs correctly move with the vertices of the target cube 
@@ -557,20 +535,15 @@ function render() {
         //var screenPoint = Point3DToScreen2D(val, textureCamera)
 
         var coordPoint = Point3DtoCoord(val, textureCamera);
-        var
-        //console.log(coordPoint)
-            pts.push
-        console.log(vectorToUV(coordPoint));
+        console.log(coordPoint)
+            // console.log(vectorToUV(coordPoint));
 
         var screenPoint = vectorToScreen(coordPoint);
-
         drawPoint('TextureViewCanvas', screenPoint.x, screenPoint.y, index, "red");
     });
     console.log("done")
     firstTime = false;
 }
-
-
 
 function vectorToUV(vector) {
     var vect = vector.clone();
@@ -579,7 +552,6 @@ function vectorToUV(vector) {
     vect.divideScalar(2);
     return vect;
 }
-
 
 function makeVector2(points) {
     return new THREE.Vector2(points[0], points[1]);
@@ -593,7 +565,6 @@ function ppmCamera() {
         var screenPoint = Point3DToScreen2D(val, textureCamera);
         targs.push(normPoint('TextureViewCanvas', screenPoint.x, -screenPoint.y));
     });
-
     // console.log(translateUV(renderedCube.geometry, targs));
 }
 
