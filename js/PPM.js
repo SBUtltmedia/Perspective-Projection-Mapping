@@ -261,41 +261,126 @@ function init() {
     var materialIndex = 0; //optional
 
 
+
+
+
     var points = [
         //red
         [
-            [0.507120, 0.638653],
-            [0.952325, 0.834875],
-            [0.897624, 0.308543],
+            [0.507120, 0.638653], // (0,0)
+            [0.952325, 0.834875], // (0,1)
+            [0.897624, 0.308543], // (0,2)
         ],
+
         [
-            [0.507120, 0.638653],
-            [0.952325, 0.834875],
-            [0.897624, 0.308543],
+            [0.507120, 0.638653], // (1,0)
+            [0.952325, 0.834875], // (1,1)
+            [0.897624, 0.308543], // (1,2)
         ],
         //blue
         [
-            [0.499073, 0.039900],
-            [0.042908, 0.834260],
-            [0.086556, 0.314496]
+            [0.499073, 0.039900], // (2,0)
+            [0.042908, 0.834260], // (2,1)
+            [0.086556, 0.314496] // (2,2)
         ],
         [
-            [0.507120, 0.638653],
-            [0.042908, 0.834260],
-            [0.499073, 0.039900],
+            [0.507120, 0.638653], // (3,0)
+            [0.042908, 0.834260], // (3,1)
+            [0.499073, 0.039900], // (3,2)
         ],
         //yellow
         [
-            [0.491259, 0.982841],
-            [0.507120, 0.638653],
-            [0.042908, 0.834260],
+            [0.491259, 0.982841], // (4,0)
+            [0.507120, 0.638653], // (4,1)
+            [0.042908, 0.834260], // (4,2)
         ],
         [
-            [0.507120, 0.638653],
-            [0.491259, 0.982841],
-            [0.042908, 0.834260],
+            [0.507120, 0.638653], // (5,0)
+            [0.491259, 0.982841], // (5,1)
+            [0.042908, 0.834260], // (5,2)
         ]
     ];
+
+
+
+    var redPts = [
+        [0.507120, 0.638653],
+        [0.952325, 0.834875],
+        [0.897624, 0.308543],
+        [0.499073, 0.039900],
+        [0.042908, 0.834260],
+        [0.086556, 0.314496],
+        [0.491259, 0.982841],
+    ];
+
+    var vertexPoints = [
+        [0.366207, 0.6441414], // (0,0)
+        [0.5011326656716772, 0.6064554847784225], // (0,1)
+        [0.37444244217081096, 0.36399039943352096], // (0,2)
+        [0.5010498898959672, 0.2765720622854274], // (0,3)
+        [0.6334740357261228, 0.644585076694217], // (0,4)
+        [0.49919508252464545, 0.6713038942086743], // (0,5)
+        [0.6252772145702807, 0.36503238403575655], // (0,6)
+        // [0.4992377894834007, 0.4283587594348797]    // (0,7)
+    ]
+
+
+    // colors for testing
+    var color = "red";
+    if (color == "red") {
+        // red points
+        redPts.forEach(function(val, index, array) {
+            var vect = vectorToScreen(UVtoVector(new THREE.Vector2(val[0], val[1])));
+            drawPoint('TextureViewCanvas', vect.x, vect.y, index, "red");
+        });
+    }
+    if (color == "green") {
+        // // green points
+        vertexPoints.forEach(function(val, index, array) {
+            var vect = vectorToScreen(UVtoVector(new THREE.Vector2(val[0], val[1])));
+            drawPoint('TextureViewCanvas', vect.x, vect.y, index, "green");
+        });
+    }
+
+    var associations = [
+
+        [ // (0,1)
+            [0, 0],
+            [1, 0],
+            [3, 0],
+            [4, 1],
+            [5, 0],
+        ],
+        [ // (0,4)
+            [0, 1],
+            [1, 1],
+        ],
+
+        [ // (0,6)
+            [0, 2],
+            [1, 2],
+        ],
+        [ // (0,3)
+            [2, 0],
+            [3, 2],
+        ],
+        [ // (0,0)
+            [2, 1],
+            [3, 1],
+            [4, 2],
+            [5, 2],
+        ],
+        [ // (0,2)
+            [2, 2],
+        ],
+        [ // (0,5)
+            [4, 0],
+            [5, 1],
+        ]
+    ];
+
+
+
 
     var faceInfo = [
         [4, 3, 0],
@@ -348,7 +433,6 @@ function init() {
 
     projectionCube.computeFaceNormals();
     projectionCube.computeVertexNormals();
-
 
     cube = new THREE.Mesh(projectionCube, material);
     cube.position.y = 150;
@@ -441,11 +525,6 @@ function Point3DtoCoord(point3D, camera) {
 }
 
 
-function vectorToScreen(vector) {
-    var width = renderer.context.canvas.width;
-    var height = renderer.context.canvas.height;
-    return new THREE.Vector2((vector.x + 1) * width / 2, vector.y = -(vector.y - 1) * height / 2);
-}
 
 
 //MAIN TO-DO: Revise code so that the facevertexuvs correctly move with the vertices of the target cube 
@@ -535,14 +614,25 @@ function render() {
         //var screenPoint = Point3DToScreen2D(val, textureCamera)
 
         var coordPoint = Point3DtoCoord(val, textureCamera);
-        console.log(coordPoint)
+
+
+        var vectUV = vectorToUV(coordPoint)
+
+        pts.push([vectUV.x, vectUV.y]) // ??? console.log after pushing...
+            // console.log([vectUV.x,vectUV.y])
             // console.log(vectorToUV(coordPoint));
 
         var screenPoint = vectorToScreen(coordPoint);
-        drawPoint('TextureViewCanvas', screenPoint.x, screenPoint.y, index, "red");
+        // drawPoint('TextureViewCanvas', screenPoint.x, screenPoint.y, index, "red");
     });
-    console.log("done")
+    console.log(JSON.stringify(pts))
     firstTime = false;
+}
+
+function vectorToScreen(vector) {
+    var width = renderer.context.canvas.width;
+    var height = renderer.context.canvas.height;
+    return new THREE.Vector2((vector.x + 1) * width / 2, vector.y = -(vector.y - 1) * height / 2);
 }
 
 function vectorToUV(vector) {
@@ -552,6 +642,15 @@ function vectorToUV(vector) {
     vect.divideScalar(2);
     return vect;
 }
+
+
+function UVtoVector(vector) {
+    var vect = vector.clone();
+    vect.multiplyScalar(2);
+    vect.subScalar(1);
+    return vect;
+}
+
 
 function makeVector2(points) {
     return new THREE.Vector2(points[0], points[1]);
