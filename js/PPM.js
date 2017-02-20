@@ -4,8 +4,7 @@
     Date: July 2013 (three.js v59dev)
 */
 
-// MAIN
-//TODO:
+// MAIN TODO:
 // Find the correspondance between movements of the MovingCube and the uv mapping of the rendered object (using the blue cube in this case);
 //      - [DONE] Find world space coordinates of vertices
 //      - [DONE] Set up distance calculation
@@ -23,6 +22,7 @@ var interrim, throwaway;
 var movingCube, targetCube, renderedCube, objOfInterest;
 var textureCamera, mainCamera;
 var raycaster;
+
 // intermediate scene for reflecting the reflection
 var screenScene, screenCamera, firstRenderTarget, finalRenderTarget;
 var plus = 0;
@@ -255,12 +255,20 @@ function init() {
     projectionCube.vertices.push(new THREE.Vector3(-50, 50, 50));
     projectionCube.vertices.push(new THREE.Vector3(-50, 50, -50));
     var loader = new THREE.TextureLoader();
-    //var rubiksTex = loader.load("textures/rubix_cube2.jpg");
-    var rubiksTex = loader.load("images/cubeExample.jpg");
-    var material = new THREE.MeshBasicMaterial({ map: rubiksTex, side: THREE.DoubleSide, overdraw: 0.5 });
-    // var material = new THREE.MeshBasicMaterial({ map: finalRenderTarget.texture, side: THREE.DoubleSide, overdraw: 0.5 });
 
-    //var material = new THREE.MeshBasicMaterial({ map: rubiksTex, side: THREE.DoubleSide, overdraw: 0.5 });
+
+    // var material = new THREE.MeshBasicMaterial({ map: finalRenderTarget.texture, side: THREE.DoubleSide, overdraw: 0.5 })
+
+    // Rubik's Cube
+    var rubiksTex = loader.load("textures/rubix_cube2.jpg");
+    var material = new THREE.MeshBasicMaterial({ map: rubiksTex, side: THREE.DoubleSide, overdraw: 0.5 });
+
+    // Screenshot Cube Example
+    // var rubiksTex = loader.load("images/cubeExample.jpg");
+    // var material = new THREE.MeshBasicMaterial({ map: rubiksTex, side: THREE.DoubleSide, overdraw: 0.5 });
+
+
+
 
     var color = new THREE.Color(0xffaa00); //optional
     var materialIndex = 0; //optional
@@ -332,7 +340,7 @@ function init() {
 
 
     var mapVertsToUVVert = [1, 4, 6, 3, 0, 2, 5]
-
+    // var mapVertsToUVVert = [0, 1, 2, 3, 4, 5, 6]
 
     reorderedVertexPoints = reorderVertexPoints(vertexPoints, mapVertsToUVVert);
 
@@ -461,18 +469,12 @@ function init() {
 
     function getAssociation(x, y) {
         var foundIndex = 0;
-
         associations.forEach(function(val, index, array) {
-
-                val.forEach(function(val2, index2, array2) {
-                    // console.log(val2,x,y)
-                    if (val2[0] === x && val2[1] === y) foundIndex = index;
-
-                });
-
-            }
-
-        )
+            val.forEach(function(val2, index2, array2) {
+                // console.log(val2,x,y)
+                if (val2[0] === x && val2[1] === y) foundIndex = index;
+            });
+        })
         return foundIndex;
     }
 
@@ -561,9 +563,6 @@ function getWorldPosVertices(object) {
     }
     return container;
 }
-
-
-
 
 
 function Point3DToScreen2D(point3D, camera) {
