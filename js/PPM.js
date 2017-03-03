@@ -84,6 +84,71 @@ var points = [
 ];
 
 
+
+
+// shrn
+// draw (third) canvas to check points //
+// https://developer.mozilla.org/en-US/docs/Web/API/Canvas_API/Tutorial/Drawing_shapes
+
+//test function
+function pointScaler(points, val){
+
+    var canvas = document.getElementById('canvas');
+    if (canvas.getContext) {
+        var ctx = canvas.getContext('2d');
+        ctx.beginPath();
+
+        points[val].forEach(function(val,index){
+            for(i=0;i<=2;i++){
+                var a = 0*300;  // oop
+                var b = 0*300;  // oop
+                var c = 0*300;  // oop
+                
+                ctx.moveTo(a, b);
+                ctx.lineTo(b, a);
+                ctx.lineTo(b, c);
+                ctx.fill();
+
+//                ctx.moveTo(75, 50);
+//                ctx.lineTo(100, 75);
+//                ctx.lineTo(100, 25);
+//                ctx.fill();
+            }
+        }
+    });
+});
+    
+
+//function draw() {
+//  var canvas = document.getElementById('canvas');
+//  if (canvas.getContext) {
+//    var ctx = canvas.getContext('2d');
+//
+//    ctx.beginPath();
+//    ctx.moveTo(75, 50);
+//    ctx.lineTo(100, 75);
+//    ctx.lineTo(100, 25);
+//    ctx.fill();
+//  }
+//}
+//
+
+
+
+
+//    var foundIndex = 0;
+//    associations.forEach(function(val, index, array) {
+//        val.forEach(function(val2, index2, array2) {
+//            // console.log(val2,x,y)
+////            if (val2[0] === x && val2[1] === y) foundIndex = index;
+//        });
+//    })
+//    
+    
+}
+
+
+
 // var mapVertsToUVVert = [1, 4, 6, 3, 0, 2, 5];
 var mapVertsToUVVert = [0, 1, 2, 3, 4, 5, 6];
 
@@ -133,6 +198,13 @@ var faceInfo = [
     [2, 5, 1],
     [5, 3, 6],
     [3, 5, 4]
+    
+//    [4, 3, 0],
+//    [4, 3, 0],
+//    [1, 5, 4],
+//    [1, 5, 4],
+//    [5, 3, 6],
+//    [5, 3, 6]
 ];
 
 
@@ -179,6 +251,15 @@ $(function() {
 
 // FUNCTIONS        
 function init() {
+    
+    
+    
+    
+//    console.log("t e s t");
+//    pointScaler(points);
+    
+    
+    
     $.each([1, 2, 3, 4, 5, 6, 7, 8], function(idx, val) {
         $("#TextureView").append("<div class='vertexDiv' id='vert" + idx + "'></div>")
     })
@@ -725,7 +806,7 @@ function render() {
         var screenPoint = vectorToScreen(coordPoint);
         // drawPoint('TextureViewCanvas', screenPoint.x, screenPoint.y, index, "red");
     });
-    console.log(JSON.stringify(pts))
+//    console.log(JSON.stringify(pts))
     firstTime = false;
 }
 
