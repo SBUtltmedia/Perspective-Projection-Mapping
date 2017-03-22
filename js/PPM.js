@@ -35,204 +35,6 @@ var tcFaces;
 
 
 
-// Coordinates 
-var vertexPoints = [
-    [0.366207, 0.6441414], // (0,0)
-    [0.5011326656716772, 0.6064554847784225], // (0,1)
-    [0.37444244217081096, 0.36399039943352096], // (0,2)
-    [0.5010498898959672, 0.2765720622854274], // (0,3)
-    [0.6334740357261228, 0.644585076694217], // (0,4)
-    [0.49919508252464545, 0.6713038942086743], // (0,5)
-    [0.6252772145702807, 0.36503238403575655], // (0,6)
-    // [0.4992377894834007, 0.4283587594348797]    // (0,7)
-]
-
-var points = [
-    //red
-    [
-        [0.507120, 0.638653], // (0,0)
-        [0.952325, 0.834875], // (0,1)
-        [0.897624, 0.308543], // (0,2)
-    ],
-
-    [
-        [0.507120, 0.638653], // (1,0)
-        [0.512325, 0.064875], // (1,1)
-        [0.897624, 0.308543], // (1,2)
-    ],
-    //blue
-    [
-        [0.499073, 0.039900], // (3,2)
-        [0.042908, 0.834260], // (3,1)
-        [0.507120, 0.638653], // (3,0)
-    ],
-    [
-
-        [0.086556, 0.314496], // 2
-        [0.042908, 0.834260], // 1
-        [0.499073, 0.039900], // 0
-
-    ],
-    //yellow
-    [
-        [0.042908, 0.834260],
-        [0.931259, 0.842841],
-        [0.491259, 0.982841],
-    ],
-    [
-        [0.931259, 0.842841],
-        [0.042908, 0.834260],
-        [0.507120, 0.638653],
-    ]
-];
-
-
-
-
-// shrn
-// draw (third) canvas to check points //
-// https://developer.mozilla.org/en-US/docs/Web/API/Canvas_API/Tutorial/Drawing_shapes
-
-//test function
-// function pointScaler(points, val) {
-//     var canvas = document.getElementById('canvas');
-//     if (canvas.getContext) {
-//         var ctx = canvas.getContext('2d');
-//         ctx.beginPath();
-
-//         points[val].forEach(function(val, index) {
-//                 for (i = 0; i <= 2; i++) {
-//                     var a = 0 * 300; // oop
-//                     var b = 0 * 300; // oop
-//                     var c = 0 * 300; // oop
-
-//                     ctx.moveTo(a, b);
-//                     ctx.lineTo(b, a);
-//                     ctx.lineTo(b, c);
-//                     ctx.fill();
-
-//                     //                ctx.moveTo(75, 50);
-//                     //                ctx.lineTo(100, 75);
-//                     //                ctx.lineTo(100, 25);
-//                     //                ctx.fill();
-//                 }
-//             }
-//         });
-// }
-
-
-// function draw() {
-//     var canvas = document.getElementById('canvas');
-//     if (canvas.getContext) {
-//         var ctx = canvas.getContext('2d');
-//         ctx.beginPath();
-//         ctx.moveTo(75, 50);
-//         ctx.lineTo(100, 75);
-//         ctx.lineTo(100, 25);
-//         ctx.fill();
-//     }
-// }
-
-
-// var foundIndex = 0;
-// associations.forEach(function(val, index, array) {
-//     val.forEach(function(val2, index2, array2) {
-//         // console.log(val2,x,y)
-//         //            if (val2[0] === x && val2[1] === y) foundIndex = index;
-//     });
-// })
-
-
-// }
-
-
-
-// var mapVertsToUVVert = [1, 4, 6, 3, 0, 2, 5];
-var mapVertsToUVVert = [0, 1, 2, 3, 4, 5, 6];
-
-
-
-var associations = [
-    [ // (0,1)
-        [0, 0],
-        [1, 0],
-        [3, 0],
-        [4, 1],
-        [5, 0],
-    ],
-    [ // (0,4)
-        [0, 1],
-        [1, 1],
-    ],
-
-    [ // (0,6)
-        [0, 2],
-        [1, 2],
-    ],
-    [ // (0,3)
-        [2, 0],
-        [3, 2],
-    ],
-    [ // (0,0)
-        [2, 1],
-        [3, 1],
-        [4, 2],
-        [5, 2],
-    ],
-    [ // (0,2)
-        [2, 2],
-    ],
-    [ // (0,5)
-        [4, 0],
-        [5, 1],
-    ]
-];
-
-
-var faceInfo = [
-    [4, 3, 0],
-    [4, 1, 0],
-    [1, 5, 4],
-    [2, 5, 1],
-    [5, 3, 6],
-    [3, 5, 4]
-
-    //    [4, 3, 0],
-    //    [4, 3, 0],
-    //    [1, 5, 4],
-    //    [1, 5, 4],
-    //    [5, 3, 6],
-    //    [5, 3, 6]
-];
-
-
-// test points
-var redPts = [
-    [0.507120, 0.638653],
-    [0.952325, 0.834875],
-    [0.897624, 0.308543],
-    [0.499073, 0.039900],
-    [0.042908, 0.834260],
-    [0.086556, 0.314496],
-    [0.491259, 0.982841],
-];
-
-
-
-// Original vertex points
-// var vertexPoints = [
-//     [0.366207, 0.6441414], // (0,0)
-//     [0.5011326656716772, 0.6064554847784225], // (0,1)
-//     [0.37444244217081096, 0.36399039943352096], // (0,2)
-//     [0.5010498898959672, 0.2765720622854274], // (0,3)
-//     [0.6334740357261228, 0.644585076694217], // (0,4)
-//     [0.49919508252464545, 0.6713038942086743], // (0,5)
-//     [0.6252772145702807, 0.36503238403575655], // (0,6)
-//     // [0.4992377894834007, 0.4283587594348797]    // (0,7)
-// ]
-
-
-
 
 $(function() {
     init();
@@ -242,20 +44,8 @@ $(function() {
 
 
 
-
-
-
-
-
-// FUNCTIONS        
+/*================== Functions ==================*/
 function init() {
-
-
-    //    console.log("t e s t");
-    //    pointScaler(points);
-
-
-
     $.each([1, 2, 3, 4, 5, 6, 7, 8], function(idx, val) {
         $("#TextureView").append("<div class='vertexDiv' id='vert" + idx + "'></div>")
     })
@@ -281,15 +71,16 @@ function init() {
         ASPECT = SCREEN_WIDTH / SCREEN_HEIGHT,
         NEAR = 0.1,
         FAR = 20000;
+
     // camera 1
     mainCamera = new THREE.PerspectiveCamera(VIEW_ANGLE, ASPECT, NEAR, FAR);
     scene.add(mainCamera);
-
     mainCamera.position.set(300, 400, 800);
     mainCamera.lookAt(scene.position);
+    
     // camera 2
     textureCamera = new THREE.PerspectiveCamera(VIEW_ANGLE, ASPECT, NEAR, FAR);
-    //scene.add(textureCamera);
+    scene.add(textureCamera);
 
     //Additional Cameras for HUD
 
@@ -409,9 +200,10 @@ function init() {
     var cubeGeometry = new THREE.CubeGeometry(100, 100, 100);
     targetCube = new THREE.Mesh(cubeGeometry, blueMaterial);
 
+    // shape within cube
     var icoMat = new THREE.MeshNormalMaterial({ shading: THREE.FlatShading });
-    //var icoGeo = new THREE.IcosahedronGeometry(50, 0);
-    var icoGeo = new THREE.CubeGeometry(50, 10, 20);
+    var icoGeo = new THREE.IcosahedronGeometry(50, 0);
+    // var icoGeo = new THREE.CubeGeometry(50, 10, 20);
     objOfInterest = new THREE.Mesh(icoGeo, icoMat);
 
     targetCube.position.set(0, cubeGeometry.parameters.height / 2, 400);
@@ -425,8 +217,7 @@ function init() {
     var ambientlight = new THREE.AmbientLight(0x111111);
     scene.add(ambientlight);
 
-
-    // intermediate scene.
+    //   intermediate scene.
     //   this solves the problem of the mirrored texture by mirroring it again.
     //   consists of a camera looking at a plane with the mirrored texture on it. 
     screenScene = new THREE.Scene();
@@ -450,11 +241,10 @@ function init() {
     // final version of camera texture, used in scene. 
     var renderedCubeGeom = new THREE.CubeGeometry(120, 120, 120);
 
-
     var rktex = THREE.ImageUtils.loadTexture('images/rubix_cube2.jpg');
     finalRenderTarget = new THREE.WebGLRenderTarget(1024, 1024, { format: THREE.RGBFormat });
     var planeMaterial = new THREE.MeshBasicMaterial({ map: finalRenderTarget.texture });
-    //  var planeMaterial = new THREE.MeshBasicMaterial( { map: rktex} );
+    //  var planeMaterial = new THREE.MeshBasicMaterial( { map: rkstex} );
 
     renderedCube = new THREE.Mesh(renderedCubeGeom, planeMaterial);
     renderedCube.position.set(0, renderedCubeGeom.parameters.height / 2, -200);
@@ -477,46 +267,27 @@ function init() {
     // var material = new THREE.MeshBasicMaterial({ map: finalRenderTarget.texture, side: THREE.DoubleSide, overdraw: 0.5 })
 
 
-
-
     var color = new THREE.Color(0xffaa00); //optional
-    var materialIndex = 0; //optional
-
-
-
-
-
-
-
+    var materialIndex = 0;      //optional
 
 
 
 
     // shrn
-    // Rubik's Cube
-    // var rubiksTex = loader.load("textures/rubix_cube2.jpg");
+    // TO DO: Fix face loading issue.
+
+    /*================== Rubik's Cube ==================*/
     var rubiksTex = loader.load("images/rubix_cube2.jpg");
     var material = new THREE.MeshBasicMaterial({ map: rubiksTex, side: THREE.DoubleSide, overdraw: 0.5 });
-
-    // Screenshot Cube Example
-    // var rubiksTex = loader.load("images/cubeExample.jpg");
-    // var material = new THREE.MeshBasicMaterial({ map: rubiksTex, side: THREE.DoubleSide, overdraw: 0.5 });
-
     reorderedVertexPoints = reorderVertexPoints(vertexPoints, mapVertsToUVVert);
 
-    // colors for testing
+    // colors for testing. broken.
     // drawTestPoints("green");
-
-
-
-
-
 
     var faceHolder = [];
     faceInfo.forEach(function(val, index, array) {
         projectionCube.faces.push(new THREE.Face3(val[0], val[1], val[2], color, materialIndex))
     });
-
 
     points.forEach(function(val, index, array) {
         var faceUV = [];
@@ -530,8 +301,6 @@ function init() {
 
         projectionCube.faceVertexUvs[0].push(faceUV);
     });
-
-
 
 
     // change geometry -> projectionCube if used
@@ -560,98 +329,21 @@ function init() {
     projectionCube.computeFaceNormals();
     projectionCube.computeVertexNormals();
 
-    cube = new THREE.Mesh(projectionCube, material);
+    // cube = new THREE.Mesh(projectionCube, material);     //rubix
+    cube = new THREE.Mesh(projectionCube, planeMaterial);
     cube.position.y = 100;
     scene.add(cube);
-
 
     // positioning rubiks cube
     scaleCube(cube, 2, 2, 2);
     rotateCube(cube, 0, -.3, 0);
     rotateCube(cube, .3, 0, 0);
-
     //end rubix
+
 }
 
 
 
-
-
-
-/*======== Cube Mapping Functions ========*/
-function getAssociation(x, y) {
-    var foundIndex = 0;
-    associations.forEach(function(val, index, array) {
-        val.forEach(function(val2, index2, array2) {
-            // console.log(val2,x,y)
-            if (val2[0] === x && val2[1] === y) foundIndex = index;
-        });
-    })
-    return foundIndex;
-}
-
-function reorderVertexPoints(vertexPoints, mapVertsToUVVert) {
-    var returnPoints = []
-    mapVertsToUVVert.forEach(function(val, idx, array) {
-        returnPoints.push(vertexPoints[val])
-    })
-    return returnPoints;
-}
-/*========================================*/
-
-
-
-
-
-/*======== Positioning rubix cube for testing ========*/
-function scaleCube(cube, x, y, z) {
-    cube.scale.x = x;
-    cube.scale.y = y;
-    cube.scale.z = z;
-}
-
-// rotates rubix cube
-function rotateCube(cube, x, y, z) {
-    cube.rotation.x += x;
-    cube.rotation.y += y;
-    cube.rotation.z += z;
-}
-/*====================================================*/
-
-
-
-// test function to plot coordinates
-function drawTestPoints(color) {
-    // red is broken
-    if (color == "red") {
-        redPts.forEach(function(val, index, array) {
-            if (index == 1) {
-                var vect = vectorToScreen(UVtoVector(new THREE.Vector2(val[0], val[1])));
-                drawPoint('TextureViewCanvas', vect.x, vect.y, index, "red");
-                drawPoint('TextureViewCanvas', vertexPoints[index][0], vertexPoints[index][0], index, "red");
-            }
-        });
-    }
-
-    if (color == "green") {
-        vertexPoints.forEach(function(val, index, array) {
-            val2 = vertexPoints[mapVertsToUVVert[mapVertsToUVVert[index]]];
-            var vect = vectorToScreen(UVtoVector(new THREE.Vector2(val2[0], val2[1])));
-            drawPoint('TextureViewCanvas', vect.x, vect.y, index, "green");
-        });
-    }
-}
-
-
-
-
-
-
-function uv2vert(geometry, faceIndex, vertexIndex) {
-    return geometry.vertices[
-        geometry.faces[faceIndex][String.fromCharCode(97 + vertexIndex)]
-    ];
-}
 
 function update() {
     var delta = clock.getDelta(); // seconds.
@@ -660,6 +352,7 @@ function update() {
     var angleLimit = 0.894;
     // local transformations
 
+    /*================== Keyboard Shortcuts ==================*/
     // move forwards/backwards/left/right
     if (keyboard.pressed("W") || keyboard.pressed("up")) {
         movingCube.translateZ(-moveDistance);
@@ -678,11 +371,6 @@ function update() {
         if (movingCube.rotation.y >= -angleLimit) {
             movingCube.translateX(moveDistance);
         }
-    }
-
-    if (keyboard.pressed("V")) {
-        console.log(tcFaces)
-            // console.log(renderedCube.geometry.faceVertexUvs);
     }
 
     // positioning cube
@@ -708,6 +396,9 @@ function update() {
     movingCube.lookAt(targetCube.position);
     stats.update();
 }
+
+
+
 
 function getWorldPosVertices(object) {
     object.updateMatrixWorld();
@@ -746,8 +437,6 @@ function Point3DtoCoord(point3D, camera) {
 }
 
 
-
-
 //MAIN TO-DO: Revise code so that the facevertexuvs correctly move with the vertices of the target cube 
 function translateUV(geo, pnt) {
     //Okay, so this function grabs the normalized point that corresponds to the vertex that forms a face on the target cube. Then, it uses that point to create triangles for the face vertex uvs (fuvs), 12 in total. 
@@ -771,7 +460,7 @@ function translateUV(geo, pnt) {
 function findDupFuvs(pntArr) {
     var dups = [];
     //    var temp = -1;
-
+s
     //Creates a new vector2 for every unique ordered pair
     //So, in the end there should be 7 unique vector2s...right?
     //Right.
@@ -798,9 +487,8 @@ function contains(arr, obj) {
 }
 
 function animate() {
-    // objOfInterest.rotation.x += .04;
-    //objOfInterest.rotation.y += .02;
-
+    objOfInterest.rotation.x += .04;
+    objOfInterest.rotation.y += .02;
     requestAnimationFrame(animate);
     render();
     ppmCamera();
@@ -835,10 +523,7 @@ function render() {
         //var screenPoint = Point3DToScreen2D(val, textureCamera)
 
         var coordPoint = Point3DtoCoord(val, textureCamera);
-
-
         var vectUV = vectorToUV(coordPoint)
-
         pts.push([vectUV.x, vectUV.y]) // ??? console.log after pushing...
             // console.log([vectUV.x,vectUV.y])
             // console.log(vectorToUV(coordPoint));
@@ -851,15 +536,17 @@ function render() {
 }
 
 
-
-
+function uv2vert(geometry, faceIndex, vertexIndex) {
+    return geometry.vertices[
+        geometry.faces[faceIndex][String.fromCharCode(97 + vertexIndex)]
+    ];
+}
 
 function vectorToScreen(vector) {
     var width = renderer.context.canvas.width;
     var height = renderer.context.canvas.height;
     return new THREE.Vector2((vector.x + 1) * width / 2, vector.y = -(vector.y - 1) * height / 2);
 }
-
 
 function vectorToUV(vector) {
     var vect = vector.clone();
@@ -878,8 +565,6 @@ function UVtoVector(vector) {
 // function screenToVector() {}
 // function screenToUV() {}
 // function UVtoScreen() {}
-
-
 
 function makeVector2(points) {
     return new THREE.Vector2(points[0], points[1]);
@@ -910,3 +595,66 @@ function drawPoint(canvasID, x, y, idx, color) {
     $("#vert" + idx).css({ "left": (x) + "px", "top": (y) + "px", "backgroundColor": color });
     return [x / can.width, -y / can.width]
 }
+
+
+
+
+
+/*============== Cube Mapping Functions ===============*/
+function getAssociation(x, y) {
+    var foundIndex = 0;
+    associations.forEach(function(val, index, array) {
+        val.forEach(function(val2, index2, array2) {
+            if (val2[0] === x && val2[1] === y) foundIndex = index;
+        });
+    })
+    return foundIndex;
+}
+
+function reorderVertexPoints(vertexPoints, mapVertsToUVVert) {
+    var returnPoints = []
+    mapVertsToUVVert.forEach(function(val, idx, array) {
+        returnPoints.push(vertexPoints[val])
+    })
+    return returnPoints;
+}
+/*====================================================*/
+
+
+
+/*================== Test Functions ==================*/
+function drawTestPoints(color) {
+    // red is broken
+    if (color == "red") {
+        redPts.forEach(function(val, index, array) {
+            if (index == 1) {
+                var vect = vectorToScreen(UVtoVector(new THREE.Vector2(val[0], val[1])));
+                drawPoint('TextureViewCanvas', vect.x, vect.y, index, "red");
+                drawPoint('TextureViewCanvas', vertexPoints[index][0], vertexPoints[index][0], index, "red");
+            }
+        });
+    }
+
+    if (color == "green") {
+        vertexPoints.forEach(function(val, index, array) {
+            val2 = vertexPoints[mapVertsToUVVert[mapVertsToUVVert[index]]];
+            var vect = vectorToScreen(UVtoVector(new THREE.Vector2(val2[0], val2[1])));
+            drawPoint('TextureViewCanvas', vect.x, vect.y, index, "green");
+        });
+    }
+}
+
+// scales rubix cube
+function scaleCube(cube, x, y, z) {
+    cube.scale.x = x;
+    cube.scale.y = y;
+    cube.scale.z = z;
+}
+
+// rotates rubix cube
+function rotateCube(cube, x, y, z) {
+    cube.rotation.x += x;
+    cube.rotation.y += y;
+    cube.rotation.z += z;
+}
+/*====================================================*/
