@@ -18,6 +18,7 @@ var clock = new THREE.Clock();
 var pressed = false;
 var firstTime = true;
 var interrim, throwaway;
+
 // custom global variables
 var movingCube, targetCube, renderedCube, objOfInterest;
 var textureCamera, mainCamera;
@@ -56,25 +57,27 @@ var points = [
 
     [
         [0.507120, 0.638653], // (1,0)
-        [0.952325, 0.834875], // (1,1)
+        [0.512325, 0.064875], // (1,1)
         [0.897624, 0.308543], // (1,2)
     ],
     //blue
     [
-        [0.499073, 0.039900], // (2,0)
-        [0.042908, 0.834260], // (2,1)
-        [0.086556, 0.314496] // (2,2)
+        [0.499073, 0.039900], // (3,2)
+        [0.042908, 0.834260], // (3,1)
+        [0.507120, 0.638653], // (3,0)
     ],
     [
-        [0.507120, 0.638653], // (3,0)
-        [0.042908, 0.834260], // (3,1)
-        [0.499073, 0.039900], // (3,2)
+
+        [0.086556, 0.314496], // 2
+        [0.042908, 0.834260], // 1
+        [0.499073, 0.039900], // 0
+
     ],
     //yellow
     [
-        [0.491259, 0.982841], // (4,0)
-        [0.507120, 0.638653], // (4,1)
-        [0.042908, 0.834260], // (4,2)
+        [0.491259, 0.982841],
+        [0.507120, 0.638653],
+        [0.931259, 0.842841],
     ],
     [
         [0.507120, 0.638653], // (5,0)
@@ -91,61 +94,56 @@ var points = [
 // https://developer.mozilla.org/en-US/docs/Web/API/Canvas_API/Tutorial/Drawing_shapes
 
 //test function
-function pointScaler(points, val){
+// function pointScaler(points, val) {
+//     var canvas = document.getElementById('canvas');
+//     if (canvas.getContext) {
+//         var ctx = canvas.getContext('2d');
+//         ctx.beginPath();
 
-    var canvas = document.getElementById('canvas');
-    if (canvas.getContext) {
-        var ctx = canvas.getContext('2d');
-        ctx.beginPath();
+//         points[val].forEach(function(val, index) {
+//                 for (i = 0; i <= 2; i++) {
+//                     var a = 0 * 300; // oop
+//                     var b = 0 * 300; // oop
+//                     var c = 0 * 300; // oop
 
-        points[val].forEach(function(val,index){
-            for(i=0;i<=2;i++){
-                var a = 0*300;  // oop
-                var b = 0*300;  // oop
-                var c = 0*300;  // oop
-                
-                ctx.moveTo(a, b);
-                ctx.lineTo(b, a);
-                ctx.lineTo(b, c);
-                ctx.fill();
+//                     ctx.moveTo(a, b);
+//                     ctx.lineTo(b, a);
+//                     ctx.lineTo(b, c);
+//                     ctx.fill();
 
-//                ctx.moveTo(75, 50);
-//                ctx.lineTo(100, 75);
-//                ctx.lineTo(100, 25);
-//                ctx.fill();
-            }
-        }
-    });
-});
-    
-
-//function draw() {
-//  var canvas = document.getElementById('canvas');
-//  if (canvas.getContext) {
-//    var ctx = canvas.getContext('2d');
-//
-//    ctx.beginPath();
-//    ctx.moveTo(75, 50);
-//    ctx.lineTo(100, 75);
-//    ctx.lineTo(100, 25);
-//    ctx.fill();
-//  }
-//}
-//
+//                     //                ctx.moveTo(75, 50);
+//                     //                ctx.lineTo(100, 75);
+//                     //                ctx.lineTo(100, 25);
+//                     //                ctx.fill();
+//                 }
+//             }
+//         });
+// }
 
 
+// function draw() {
+//     var canvas = document.getElementById('canvas');
+//     if (canvas.getContext) {
+//         var ctx = canvas.getContext('2d');
+//         ctx.beginPath();
+//         ctx.moveTo(75, 50);
+//         ctx.lineTo(100, 75);
+//         ctx.lineTo(100, 25);
+//         ctx.fill();
+//     }
+// }
 
 
-//    var foundIndex = 0;
-//    associations.forEach(function(val, index, array) {
-//        val.forEach(function(val2, index2, array2) {
-//            // console.log(val2,x,y)
-////            if (val2[0] === x && val2[1] === y) foundIndex = index;
-//        });
-//    })
-//    
-    
-}
+// var foundIndex = 0;
+// associations.forEach(function(val, index, array) {
+//     val.forEach(function(val2, index2, array2) {
+//         // console.log(val2,x,y)
+//         //            if (val2[0] === x && val2[1] === y) foundIndex = index;
+//     });
+// })
+
+
+// }
 
 
 
@@ -198,13 +196,13 @@ var faceInfo = [
     [2, 5, 1],
     [5, 3, 6],
     [3, 5, 4]
-    
-//    [4, 3, 0],
-//    [4, 3, 0],
-//    [1, 5, 4],
-//    [1, 5, 4],
-//    [5, 3, 6],
-//    [5, 3, 6]
+
+    //    [4, 3, 0],
+    //    [4, 3, 0],
+    //    [1, 5, 4],
+    //    [1, 5, 4],
+    //    [5, 3, 6],
+    //    [5, 3, 6]
 ];
 
 
@@ -251,15 +249,13 @@ $(function() {
 
 // FUNCTIONS        
 function init() {
-    
-    
-    
-    
-//    console.log("t e s t");
-//    pointScaler(points);
-    
-    
-    
+
+
+    //    console.log("t e s t");
+    //    pointScaler(points);
+
+
+
     $.each([1, 2, 3, 4, 5, 6, 7, 8], function(idx, val) {
         $("#TextureView").append("<div class='vertexDiv' id='vert" + idx + "'></div>")
     })
@@ -453,13 +449,14 @@ function init() {
 
     // final version of camera texture, used in scene. 
     var renderedCubeGeom = new THREE.CubeGeometry(120, 120, 120);
+
+
     var rktex = THREE.ImageUtils.loadTexture('images/rubix_cube2.jpg');
     finalRenderTarget = new THREE.WebGLRenderTarget(1024, 1024, { format: THREE.RGBFormat });
     var planeMaterial = new THREE.MeshBasicMaterial({ map: finalRenderTarget.texture });
     //  var planeMaterial = new THREE.MeshBasicMaterial( { map: rktex} );
 
     renderedCube = new THREE.Mesh(renderedCubeGeom, planeMaterial);
-
     renderedCube.position.set(0, renderedCubeGeom.parameters.height / 2, -200);
     renderedCube.name = "CubeRenderTarget";
     renderedCube.rotation.y = -Math.PI / 2;
@@ -495,13 +492,7 @@ function init() {
 
 
 
-
-
-
-
     // shrn
-
-
     // Rubik's Cube
     // var rubiksTex = loader.load("textures/rubix_cube2.jpg");
     var rubiksTex = loader.load("images/rubix_cube2.jpg");
@@ -511,12 +502,13 @@ function init() {
     // var rubiksTex = loader.load("images/cubeExample.jpg");
     // var material = new THREE.MeshBasicMaterial({ map: rubiksTex, side: THREE.DoubleSide, overdraw: 0.5 });
 
-
     reorderedVertexPoints = reorderVertexPoints(vertexPoints, mapVertsToUVVert);
-
 
     // colors for testing
     // drawTestPoints("green");
+
+
+
 
 
 
@@ -571,6 +563,12 @@ function init() {
     cube = new THREE.Mesh(projectionCube, material);
     cube.position.y = 100;
     scene.add(cube);
+
+
+    // positioning rubiks cube
+    scaleCube(cube, 2, 2, 2);
+    rotateCube(cube, 0, -.3, 0);
+
     //end rubix
 }
 
@@ -579,7 +577,7 @@ function init() {
 
 
 
-/*========Cube Mapping Functions========*/
+/*======== Cube Mapping Functions ========*/
 function getAssociation(x, y) {
     var foundIndex = 0;
     associations.forEach(function(val, index, array) {
@@ -598,11 +596,31 @@ function reorderVertexPoints(vertexPoints, mapVertsToUVVert) {
     })
     return returnPoints;
 }
-/*======================================*/
+/*========================================*/
+
+
+
+
+
+/*======== Positioning rubix cube for testing ========*/
+function scaleCube(cube, x, y, z) {
+    cube.scale.x = x;
+    cube.scale.y = y;
+    cube.scale.z = z;
+}
+
+// rotates rubix cube
+function rotateCube(cube, x, y, z) {
+    cube.rotation.x += x;
+    cube.rotation.y += y;
+    cube.rotation.z += z;
+}
+/*====================================================*/
+
 
 
 // test function to plot coordinates
-function drawTestPoints(color){
+function drawTestPoints(color) {
     // red is broken
     if (color == "red") {
         redPts.forEach(function(val, index, array) {
@@ -663,8 +681,29 @@ function update() {
 
     if (keyboard.pressed("V")) {
         console.log(tcFaces)
-            //        console.log(renderedCube.geometry.faceVertexUvs);
+            // console.log(renderedCube.geometry.faceVertexUvs);
     }
+
+    // positioning cube
+    if (keyboard.pressed("9")) {
+        rotateCube(cube, 0, 0, .1);
+    }
+    if (keyboard.pressed("6")) {
+        rotateCube(cube, 0, 0, -.1);
+    }
+    if (keyboard.pressed("8")) {
+        rotateCube(cube, 0, .1, 0);
+    }
+    if (keyboard.pressed("5")) {
+        rotateCube(cube, 0, -.1, 0);
+    }
+    if (keyboard.pressed("7")) {
+        rotateCube(cube, .1, 0, 0);
+    }
+    if (keyboard.pressed("4")) {
+        rotateCube(cube, -.1, 0, 0);
+    }
+
     movingCube.lookAt(targetCube.position);
     stats.update();
 }
@@ -806,7 +845,7 @@ function render() {
         var screenPoint = vectorToScreen(coordPoint);
         // drawPoint('TextureViewCanvas', screenPoint.x, screenPoint.y, index, "red");
     });
-//    console.log(JSON.stringify(pts))
+    //    console.log(JSON.stringify(pts))
     firstTime = false;
 }
 
