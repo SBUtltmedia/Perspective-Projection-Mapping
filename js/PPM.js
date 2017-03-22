@@ -241,10 +241,10 @@ function init() {
     // final version of camera texture, used in scene. 
     var renderedCubeGeom = new THREE.CubeGeometry(120, 120, 120);
 
-    var rktex = THREE.ImageUtils.loadTexture('images/rubix_cube2.jpg');
-    finalRenderTarget = new THREE.WebGLRenderTarget(1024, 1024, { format: THREE.RGBFormat });
-    var planeMaterial = new THREE.MeshBasicMaterial({ map: finalRenderTarget.texture });
-    //  var planeMaterial = new THREE.MeshBasicMaterial( { map: rkstex} );
+    var rkstex = THREE.ImageUtils.loadTexture('images/rubix_cube2.jpg');
+    finalRenderTarget = new THREE.WebGLRenderTarget(1024, 1024, { format: THREE.RGBFormat });       // shrn
+    var planeMaterial = new THREE.MeshBasicMaterial({ map: finalRenderTarget.texture }); 
+    // var planeMaterial = new THREE.MeshBasicMaterial( { map: rkstex} );
 
     renderedCube = new THREE.Mesh(renderedCubeGeom, planeMaterial);
     renderedCube.position.set(0, renderedCubeGeom.parameters.height / 2, -200);
