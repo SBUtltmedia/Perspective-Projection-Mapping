@@ -243,8 +243,8 @@ function init() {
 
     var rkstex = THREE.ImageUtils.loadTexture('images/rubix_cube2.jpg');
     finalRenderTarget = new THREE.WebGLRenderTarget(1024, 1024, { format: THREE.RGBFormat });       // shrn
-    var planeMaterial = new THREE.MeshBasicMaterial({ map: finalRenderTarget.texture }); 
-    // var planeMaterial = new THREE.MeshBasicMaterial( { map: rkstex} );
+    // var planeMaterial = new THREE.MeshBasicMaterial({ map: finalRenderTarget.texture }); 
+    var planeMaterial = new THREE.MeshBasicMaterial( { map: rkstex} );
 
     renderedCube = new THREE.Mesh(renderedCubeGeom, planeMaterial);
     renderedCube.position.set(0, renderedCubeGeom.parameters.height / 2, -200);
@@ -275,19 +275,24 @@ function init() {
 
     // shrn
     // TO DO: Fix face loading issue.
+    // Problem is within associations.
 
     /*================== Rubik's Cube ==================*/
     var rubiksTex = loader.load("images/rubix_cube2.jpg");
-    var material = new THREE.MeshBasicMaterial({ map: rubiksTex, side: THREE.DoubleSide, overdraw: 0.5 });
+    //var material = new THREE.MeshBasicMaterial({ map: rubiksTex, side: THREE.DoubleSide, overdraw: 0.5 });
+    var material = new THREE.MeshBasicMaterial({ map: finalRenderTarget.texture , side: THREE.DoubleSide, overdraw: 0.5 });
     reorderedVertexPoints = reorderVertexPoints(vertexPoints, mapVertsToUVVert);
 
     // colors for testing. broken.
     // drawTestPoints("green");
+    // drawTestPoints("red");
+
 
     var faceHolder = [];
     faceInfo.forEach(function(val, index, array) {
         projectionCube.faces.push(new THREE.Face3(val[0], val[1], val[2], color, materialIndex))
     });
+
 
     points.forEach(function(val, index, array) {
         var faceUV = [];
@@ -295,7 +300,7 @@ function init() {
             //  val3 = redPts[getAssociation(index, index2)];
             val3 = reorderedVertexPoints[getAssociation(index, index2)];
             //faceUV.push(new THREE.Vector2(val2[0], val2[1]));
-            faceUV.push(new THREE.Vector2(val2[0], val2[1]));
+            faceUV.push(new THREE.Vector2(val3[0], val3[1]));
             // console.log(redPts[getAssociation(index, index2)]);
         });
 
@@ -330,7 +335,7 @@ function init() {
     projectionCube.computeVertexNormals();
 
     // cube = new THREE.Mesh(projectionCube, material);     //rubix
-    cube = new THREE.Mesh(projectionCube, planeMaterial);
+    cube = new THREE.Mesh(projectionCube, material);
     cube.position.y = 100;
     scene.add(cube);
 
@@ -396,6 +401,8 @@ function update() {
     movingCube.lookAt(targetCube.position);
     stats.update();
 }
+
+
 
 
 
@@ -518,6 +525,8 @@ function render() {
     renderer2.render(scene, textureCamera);
 
     var worldTC = getWorldPosVertices(targetCube);
+    
+
     var pts = []
     $.each(worldTC, function(index, val) {
         //var screenPoint = Point3DToScreen2D(val, textureCamera)
@@ -529,7 +538,7 @@ function render() {
             // console.log(vectorToUV(coordPoint));
 
         var screenPoint = vectorToScreen(coordPoint);
-        // drawPoint('TextureViewCanvas', screenPoint.x, screenPoint.y, index, "red");
+        drawPoint('TextureViewCanvas', screenPoint.x, screenPoint.y, index, "red");
     });
     //    console.log(JSON.stringify(pts))
     firstTime = false;
@@ -623,25 +632,13 @@ function reorderVertexPoints(vertexPoints, mapVertsToUVVert) {
 
 
 /*================== Test Functions ==================*/
+// positioning static points
 function drawTestPoints(color) {
-    // red is broken
-    if (color == "red") {
-        redPts.forEach(function(val, index, array) {
-            if (index == 1) {
-                var vect = vectorToScreen(UVtoVector(new THREE.Vector2(val[0], val[1])));
-                drawPoint('TextureViewCanvas', vect.x, vect.y, index, "red");
-                drawPoint('TextureViewCanvas', vertexPoints[index][0], vertexPoints[index][0], index, "red");
-            }
-        });
-    }
-
-    if (color == "green") {
-        vertexPoints.forEach(function(val, index, array) {
-            val2 = vertexPoints[mapVertsToUVVert[mapVertsToUVVert[index]]];
-            var vect = vectorToScreen(UVtoVector(new THREE.Vector2(val2[0], val2[1])));
-            drawPoint('TextureViewCanvas', vect.x, vect.y, index, "green");
-        });
-    }
+    vertexPoints.forEach(function(val, index, array) {
+        val2 = vertexPoints[mapVertsToUVVert[mapVertsToUVVert[index]]];
+        var vect = vectorToScreen(UVtoVector(new THREE.Vector2(val2[0], val2[1])));
+        drawPoint('TextureViewCanvas', vect.x, vect.y, index, color);
+    });
 }
 
 // scales rubix cube
@@ -658,3 +655,8 @@ function rotateCube(cube, x, y, z) {
     cube.rotation.z += z;
 }
 /*====================================================*/
+
+
+
+
+
