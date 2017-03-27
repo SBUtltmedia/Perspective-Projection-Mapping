@@ -20,7 +20,7 @@ var firstTime = true;
 var interrim, throwaway;
 
 // custom global variables
-var movingCube, targetCube, renderedCube, objOfInterest;
+var movingCube, targetCube, renderedCube, objOfInterest, projectionCube;
 var textureCamera, mainCamera;
 var raycaster;
 
@@ -77,7 +77,7 @@ function init() {
     scene.add(mainCamera);
     mainCamera.position.set(300, 400, 800);
     mainCamera.lookAt(scene.position);
-    
+
     // camera 2
     textureCamera = new THREE.PerspectiveCamera(VIEW_ANGLE, ASPECT, NEAR, FAR);
     scene.add(textureCamera);
@@ -175,6 +175,8 @@ function init() {
         [1, 4, 3, 6]
     ]
 
+
+
     // create an array with six textures for a cool cube
     var materialArray = [];
     materialArray.push(new THREE.MeshBasicMaterial({ map: THREE.ImageUtils.loadTexture('images/xpos.png'), overdraw: 0.5 }));
@@ -242,9 +244,9 @@ function init() {
     var renderedCubeGeom = new THREE.CubeGeometry(120, 120, 120);
 
     var rkstex = THREE.ImageUtils.loadTexture('images/rubix_cube2.jpg');
-    finalRenderTarget = new THREE.WebGLRenderTarget(1024, 1024, { format: THREE.RGBFormat });       // shrn
+    finalRenderTarget = new THREE.WebGLRenderTarget(1024, 1024, { format: THREE.RGBFormat }); // shrn
     // var planeMaterial = new THREE.MeshBasicMaterial({ map: finalRenderTarget.texture }); 
-    var planeMaterial = new THREE.MeshBasicMaterial( { map: rkstex} );
+    var planeMaterial = new THREE.MeshBasicMaterial({ map: rkstex });
 
     renderedCube = new THREE.Mesh(renderedCubeGeom, planeMaterial);
     renderedCube.position.set(0, renderedCubeGeom.parameters.height / 2, -200);
@@ -253,7 +255,7 @@ function init() {
     // scene.add(renderedCube);
 
     //start rubix
-    var projectionCube = new THREE.Geometry();
+    projectionCube = new THREE.Geometry();
     projectionCube.vertices.push(new THREE.Vector3(50, -50, -50));
     projectionCube.vertices.push(new THREE.Vector3(50, -50, 50));
     projectionCube.vertices.push(new THREE.Vector3(-50, -50, 50));
@@ -268,7 +270,7 @@ function init() {
 
 
     var color = new THREE.Color(0xffaa00); //optional
-    var materialIndex = 0;      //optional
+    var materialIndex = 0; //optional
 
 
 
@@ -279,9 +281,9 @@ function init() {
 
     /*================== Rubik's Cube ==================*/
     var rubiksTex = loader.load("images/rubix_cube2.jpg");
-    //var material = new THREE.MeshBasicMaterial({ map: rubiksTex, side: THREE.DoubleSide, overdraw: 0.5 });
-    var material = new THREE.MeshBasicMaterial({ map: finalRenderTarget.texture , side: THREE.DoubleSide, overdraw: 0.5 });
-    reorderedVertexPoints = reorderVertexPoints(vertexPoints, mapVertsToUVVert);
+    // var material = new THREE.MeshBasicMaterial({ map: rubiksTex, side: THREE.DoubleSide, overdraw: 0.5 });
+    var material = new THREE.MeshBasicMaterial({ map: finalRenderTarget.texture, side: THREE.DoubleSide, overdraw: 0.5 });
+    // reorderedVertexPoints = reorderVertexPoints(vertexPoints, mapVertsToUVVert);
 
     // colors for testing. broken.
     // drawTestPoints("green");
@@ -294,19 +296,21 @@ function init() {
     });
 
 
-    points.forEach(function(val, index, array) {
+    faceRubix.forEach(function(val, index, array) {
         var faceUV = [];
         val.forEach(function(val2, index2, array2) {
             //  val3 = redPts[getAssociation(index, index2)];
-            val3 = reorderedVertexPoints[getAssociation(index, index2)];
-            //faceUV.push(new THREE.Vector2(val2[0], val2[1]));
-            faceUV.push(new THREE.Vector2(val3[0], val3[1]));
+            // val3 = reorderedVertexPoints[getAssociation(index, index2)];
+            val4 = vertexPoints[val2];
+            console.log(val4, val2);
+            faceUV.push(new THREE.Vector2(val4[0], val4[1])); // rubix
+            // faceUV.push(new THREE.Vector2(val3[0], val3[1]));
             // console.log(redPts[getAssociation(index, index2)]);
         });
 
         projectionCube.faceVertexUvs[0].push(faceUV);
     });
-
+    createUVS(vertexPoints);
 
     // change geometry -> projectionCube if used
     //This injected code calculates the UVs for a Planar Surface
@@ -467,7 +471,6 @@ function translateUV(geo, pnt) {
 function findDupFuvs(pntArr) {
     var dups = [];
     //    var temp = -1;
-s
     //Creates a new vector2 for every unique ordered pair
     //So, in the end there should be 7 unique vector2s...right?
     //Right.
@@ -482,6 +485,41 @@ s
     }
     return dups;
 }
+
+function createUVS(uvArray) {
+    projectionCube.faceVertexUvs[0] = [];
+    faceRubix.forEach(function(val, index, array) {
+        var faceUV = [];
+        val.forEach(function(val2, index2, array2) {
+            //  val3 = redPts[getAssociation(index, index2)];
+            // val3 = reorderedVertexPoints[getAssociation(index, index2)];
+            val4 = uvArray[val2];
+            console.log(val4, val2);
+            faceUV.push(new THREE.Vector2(val4[0], val4[1])); // rubix
+            // faceUV.push(new THREE.Vector2(val3[0], val3[1]));
+            // console.log(redPts[getAssociation(index, index2)]);
+        });
+
+        projectionCube.faceVertexUvs[0].push(faceUV);
+        projectionCube.uvsNeedUpdate = true;
+        // projectionCube.faceVertexUvs[0]=[];
+    });
+}
+
+function updateUVS(uvArray) {
+
+    faceRubix.forEach(function(val, index, array) {
+
+        console.log(projectionCube.faceVertexUvs)
+
+        projectionCube.faceVertexUvs[0][index][0].set(uvArray[0][0], uvArray[0][1]);
+        projectionCube.faceVertexUvs[0][index][1].set(uvArray[1][0], uvArray[1][1]);
+        projectionCube.faceVertexUvs[0][index][2].set(uvArray[2][0], uvArray[2][1]);
+        projectionCube.uvsNeedUpdate = true;
+        // projectionCube.faceVertexUvs[0]=[];
+    });
+}
+
 
 function contains(arr, obj) {
     for (var i = 0; i < arr.length; i++) {
@@ -525,22 +563,26 @@ function render() {
     renderer2.render(scene, textureCamera);
 
     var worldTC = getWorldPosVertices(targetCube);
-    
+
 
     var pts = []
     $.each(worldTC, function(index, val) {
         //var screenPoint = Point3DToScreen2D(val, textureCamera)
 
         var coordPoint = Point3DtoCoord(val, textureCamera);
+
         var vectUV = vectorToUV(coordPoint)
         pts.push([vectUV.x, vectUV.y]) // ??? console.log after pushing...
             // console.log([vectUV.x,vectUV.y])
             // console.log(vectorToUV(coordPoint));
 
+
         var screenPoint = vectorToScreen(coordPoint);
         drawPoint('TextureViewCanvas', screenPoint.x, screenPoint.y, index, "red");
+
     });
-    //    console.log(JSON.stringify(pts))
+    updateUVS(pts);
+    console.log(JSON.stringify(pts))
     firstTime = false;
 }
 
@@ -635,7 +677,7 @@ function reorderVertexPoints(vertexPoints, mapVertsToUVVert) {
 // positioning static points
 function drawTestPoints(color) {
     vertexPoints.forEach(function(val, index, array) {
-        val2 = vertexPoints[mapVertsToUVVert[mapVertsToUVVert[index]]];
+        // val2 = vertexPoints[mapVertsToUVVert[mapVertsToUVVert[index]]];
         var vect = vectorToScreen(UVtoVector(new THREE.Vector2(val2[0], val2[1])));
         drawPoint('TextureViewCanvas', vect.x, vect.y, index, color);
     });
@@ -655,8 +697,3 @@ function rotateCube(cube, x, y, z) {
     cube.rotation.z += z;
 }
 /*====================================================*/
-
-
-
-
-
