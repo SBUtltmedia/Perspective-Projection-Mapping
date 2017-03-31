@@ -18,7 +18,7 @@ var clock = new THREE.Clock();
 var pressed = false;
 var firstTime = true;
 var interrim, throwaway;
-
+var rubix=false;
 // custom global variables
 var movingCube, targetCube, renderedCube, objOfInterest, projectionCube;
 var textureCamera, mainCamera;
@@ -243,17 +243,9 @@ function init() {
     // final version of camera texture, used in scene. 
     var renderedCubeGeom = new THREE.CubeGeometry(120, 120, 120);
 
-    var rkstex = THREE.ImageUtils.loadTexture('images/rubix_cube2.jpg');
+   
     finalRenderTarget = new THREE.WebGLRenderTarget(1024, 1024, { format: THREE.RGBFormat }); // shrn
-    // var planeMaterial = new THREE.MeshBasicMaterial({ map: finalRenderTarget.texture }); 
-    var planeMaterial = new THREE.MeshBasicMaterial({ map: rkstex });
-
-    renderedCube = new THREE.Mesh(renderedCubeGeom, planeMaterial);
-    renderedCube.position.set(0, renderedCubeGeom.parameters.height / 2, -200);
-    renderedCube.name = "CubeRenderTarget";
-    renderedCube.rotation.y = -Math.PI / 2;
-    // scene.add(renderedCube);
-
+    
     //start rubix
     projectionCube = new THREE.Geometry();
     projectionCube.vertices.push(new THREE.Vector3(50, -50, -50));
@@ -280,9 +272,14 @@ function init() {
     // Problem is within associations.
 
     /*================== Rubik's Cube ==================*/
+    finalRenderTarget = new THREE.WebGLRenderTarget(1024, 1024, { format: THREE.RGBFormat }); // shrn
+    if(rubix){
     var rubiksTex = loader.load("images/rubix_cube2.jpg");
-    // var material = new THREE.MeshBasicMaterial({ map: rubiksTex, side: THREE.DoubleSide, overdraw: 0.5 });
+    var material = new THREE.MeshBasicMaterial({ map: rubiksTex, side: THREE.DoubleSide, overdraw: 0.5 });
+    }
+    else{
     var material = new THREE.MeshBasicMaterial({ map: finalRenderTarget.texture, side: THREE.DoubleSide, overdraw: 0.5 });
+    }
     // reorderedVertexPoints = reorderVertexPoints(vertexPoints, mapVertsToUVVert);
 
     // colors for testing. broken.
@@ -299,19 +296,25 @@ function init() {
     faceRubix.forEach(function(val, index, array) {
         var faceUV = [];
         val.forEach(function(val2, index2, array2) {
-            //  val3 = redPts[getAssociation(index, index2)];
+            // val3 = redPts[getAssociation(index, index2)];
             // val3 = reorderedVertexPoints[getAssociation(index, index2)];
-            val4 = vertexPoints[val2];
+            val4 =  rubixPoints[val2];
             console.log(val4, val2);
             faceUV.push(new THREE.Vector2(val4[0], val4[1])); // rubix
             // faceUV.push(new THREE.Vector2(val3[0], val3[1]));
             // console.log(redPts[getAssociation(index, index2)]);
+
+
         });
 
         projectionCube.faceVertexUvs[0].push(faceUV);
     });
-    createUVS(vertexPoints);
-
+    if(rubix){
+    createUVS(rubixPoints);
+    }
+    else{
+     createUVS(vertexPoints);     // rubix
+}
     // change geometry -> projectionCube if used
     //This injected code calculates the UVs for a Planar Surface
     //Consider modifying to fit three planar surfaces (since that's what makes up our mesh)
@@ -450,8 +453,12 @@ function Point3DtoCoord(point3D, camera) {
 
 //MAIN TO-DO: Revise code so that the facevertexuvs correctly move with the vertices of the target cube 
 function translateUV(geo, pnt) {
-    //Okay, so this function grabs the normalized point that corresponds to the vertex that forms a face on the target cube. Then, it uses that point to create triangles for the face vertex uvs (fuvs), 12 in total. 
-    fuvs = geo.faceVertexUvs;
+    /* Okay, so this function grabs the normalized point that corresponds to the vertex that 
+       forms a face on the target cube. Then, it uses that point to create triangles for 
+       the face vertex uvs (fuvs), 12 in total. 
+       fuvs = geo.faceVertexUvs;
+    */
+
     // console.log(fuvs)
 
     //These'll be reused...one day, maybe...
@@ -486,47 +493,43 @@ function findDupFuvs(pntArr) {
     return dups;
 }
 
+
+// fix this
 function createUVS(uvArray) {
     projectionCube.faceVertexUvs[0] = [];
     faceRubix.forEach(function(val, index, array) {
         var faceUV = [];
         val.forEach(function(val2, index2, array2) {
-            //  val3 = redPts[getAssociation(index, index2)];
-            // val3 = reorderedVertexPoints[getAssociation(index, index2)];
+
             val4 = uvArray[val2];
             console.log(val4, val2);
             faceUV.push(new THREE.Vector2(val4[0], val4[1])); // rubix
-            // faceUV.push(new THREE.Vector2(val3[0], val3[1]));
-            // console.log(redPts[getAssociation(index, index2)]);
         });
 
         projectionCube.faceVertexUvs[0].push(faceUV);
         projectionCube.uvsNeedUpdate = true;
-        // projectionCube.faceVertexUvs[0]=[];
     });
 }
 
+
+
+
 function updateUVS(uvArray) {
-
     faceRubix.forEach(function(val, index, array) {
-
         console.log(projectionCube.faceVertexUvs)
-
         projectionCube.faceVertexUvs[0][index][0].set(uvArray[0][0], uvArray[0][1]);
         projectionCube.faceVertexUvs[0][index][1].set(uvArray[1][0], uvArray[1][1]);
         projectionCube.faceVertexUvs[0][index][2].set(uvArray[2][0], uvArray[2][1]);
-        projectionCube.uvsNeedUpdate = true;
-        // projectionCube.faceVertexUvs[0]=[];
+
     });
 }
-
 
 function contains(arr, obj) {
     for (var i = 0; i < arr.length; i++) {
         var comp = new THREE.Vector2(arr[i].x, arr[i].y);
-        //        console.log(comp);
-        if (comp.x == obj.x && comp.y == obj.y)
+        if (comp.x == obj.x && comp.y == obj.y){
             return true;
+        }
     }
     return false;
 }
@@ -539,6 +542,7 @@ function animate() {
     ppmCamera();
     update();
 }
+
 
 
 function render() {
@@ -563,28 +567,30 @@ function render() {
     renderer2.render(scene, textureCamera);
 
     var worldTC = getWorldPosVertices(targetCube);
+    var pts = [];
 
-
-    var pts = []
     $.each(worldTC, function(index, val) {
         //var screenPoint = Point3DToScreen2D(val, textureCamera)
-
         var coordPoint = Point3DtoCoord(val, textureCamera);
+        var vectUV = vectorToUV(coordPoint);
+        pts.push([vectUV.x, vectUV.y]);
 
-        var vectUV = vectorToUV(coordPoint)
-        pts.push([vectUV.x, vectUV.y]) // ??? console.log after pushing...
-            // console.log([vectUV.x,vectUV.y])
-            // console.log(vectorToUV(coordPoint));
-
-
+        // console.log([vectUV.x,vectUV.y])
+        // console.log(vectorToUV(coordPoint));
         var screenPoint = vectorToScreen(coordPoint);
         drawPoint('TextureViewCanvas', screenPoint.x, screenPoint.y, index, "red");
-
     });
-    updateUVS(pts);
-    console.log(JSON.stringify(pts))
+
+    //updateUVS(pts);
+    console.log(JSON.stringify(pts));
     firstTime = false;
 }
+
+
+
+
+
+
 
 
 function uv2vert(geometry, faceIndex, vertexIndex) {
@@ -652,15 +658,15 @@ function drawPoint(canvasID, x, y, idx, color) {
 
 
 /*============== Cube Mapping Functions ===============*/
-function getAssociation(x, y) {
-    var foundIndex = 0;
-    associations.forEach(function(val, index, array) {
-        val.forEach(function(val2, index2, array2) {
-            if (val2[0] === x && val2[1] === y) foundIndex = index;
-        });
-    })
-    return foundIndex;
-}
+// function getAssociation(x, y) {
+//     var foundIndex = 0;
+//     associations.forEach(function(val, index, array) {
+//         val.forEach(function(val2, index2, array2) {
+//             if (val2[0] === x && val2[1] === y) foundIndex = index;
+//         });
+//     })
+//     return foundIndex;
+// }
 
 function reorderVertexPoints(vertexPoints, mapVertsToUVVert) {
     var returnPoints = []
@@ -676,6 +682,8 @@ function reorderVertexPoints(vertexPoints, mapVertsToUVVert) {
 /*================== Test Functions ==================*/
 // positioning static points
 function drawTestPoints(color) {
+  //  var loopPoints=  vertexPoints;
+    var loopPoints=  rubixPoints;
     vertexPoints.forEach(function(val, index, array) {
         // val2 = vertexPoints[mapVertsToUVVert[mapVertsToUVVert[index]]];
         var vect = vectorToScreen(UVtoVector(new THREE.Vector2(val2[0], val2[1])));
