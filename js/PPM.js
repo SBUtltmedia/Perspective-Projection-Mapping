@@ -18,7 +18,7 @@ var clock = new THREE.Clock();
 var pressed = false;
 var firstTime = true;
 var interrim, throwaway;
-var rubix=false;
+var rubix = false;
 // custom global variables
 var movingCube, targetCube, renderedCube, objOfInterest, projectionCube;
 var textureCamera, mainCamera;
@@ -32,7 +32,6 @@ var grow = true;
 //Definition of UV Tris/Mesh Faces on target cube
 var tcTris;
 var tcFaces;
-
 
 
 
@@ -96,7 +95,6 @@ function init() {
     container.appendChild(renderer.domElement);
     $('#ThreeJS canvas').attr("id", 'TJSCanvas')
 
-
     renderer2 = new THREE.WebGLRenderer();
     renderer2.setSize(SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2);
     container2 = document.getElementById('TextureView');
@@ -113,7 +111,6 @@ function init() {
     THREEx.WindowResize(renderer, mainCamera);
     THREEx.WindowResize(renderer2, mainCamera);
     THREEx.WindowResize(renderer3, mainCamera);
-
     THREEx.FullScreen.bindKey({ charCode: 'm'.charCodeAt(0) });
 
     // STATS
@@ -172,10 +169,8 @@ function init() {
         [4, 5, 1, 0],
         [7, 2, 6, 3],
         [5, 0, 7, 2],
-        [1, 4, 3, 6]
+        [1, 4, 3, 6],
     ]
-
-
 
     // create an array with six textures for a cool cube
     var materialArray = [];
@@ -243,9 +238,9 @@ function init() {
     // final version of camera texture, used in scene. 
     var renderedCubeGeom = new THREE.CubeGeometry(120, 120, 120);
 
-   
+
     finalRenderTarget = new THREE.WebGLRenderTarget(1024, 1024, { format: THREE.RGBFormat }); // shrn
-    
+
     //start rubix
     projectionCube = new THREE.Geometry();
     projectionCube.vertices.push(new THREE.Vector3(50, -50, -50));
@@ -256,35 +251,20 @@ function init() {
     projectionCube.vertices.push(new THREE.Vector3(-50, 50, 50));
     projectionCube.vertices.push(new THREE.Vector3(-50, 50, -50));
     var loader = new THREE.TextureLoader();
-
-
-    // var material = new THREE.MeshBasicMaterial({ map: finalRenderTarget.texture, side: THREE.DoubleSide, overdraw: 0.5 })
-
-
     var color = new THREE.Color(0xffaa00); //optional
     var materialIndex = 0; //optional
 
 
 
-
-    // shrn
-    // TO DO: Fix face loading issue.
-    // Problem is within associations.
-
     /*================== Rubik's Cube ==================*/
     finalRenderTarget = new THREE.WebGLRenderTarget(1024, 1024, { format: THREE.RGBFormat }); // shrn
-    if(rubix){
-    var rubiksTex = loader.load("images/rubix_cube2.jpg");
-    var material = new THREE.MeshBasicMaterial({ map: rubiksTex, side: THREE.DoubleSide, overdraw: 0.5 });
-    }
-    else{
-    var material = new THREE.MeshBasicMaterial({ map: finalRenderTarget.texture, side: THREE.DoubleSide, overdraw: 0.5 });
+    if (rubix) {
+        var rubiksTex = loader.load("images/rubix_cube2.jpg");
+        var material = new THREE.MeshBasicMaterial({ map: rubiksTex, side: THREE.DoubleSide, overdraw: 0.5 });
+    } else {
+        var material = new THREE.MeshBasicMaterial({ map: finalRenderTarget.texture, side: THREE.DoubleSide, overdraw: 0.5 });
     }
     // reorderedVertexPoints = reorderVertexPoints(vertexPoints, mapVertsToUVVert);
-
-    // colors for testing. broken.
-    // drawTestPoints("green");
-    // drawTestPoints("red");
 
 
     var faceHolder = [];
@@ -292,29 +272,23 @@ function init() {
         projectionCube.faces.push(new THREE.Face3(val[0], val[1], val[2], color, materialIndex))
     });
 
-
     faceRubix.forEach(function(val, index, array) {
         var faceUV = [];
         val.forEach(function(val2, index2, array2) {
             // val3 = redPts[getAssociation(index, index2)];
             // val3 = reorderedVertexPoints[getAssociation(index, index2)];
-            val4 =  rubixPoints[val2];
+            val4 = rubixPoints[val2];
             console.log(val4, val2);
             faceUV.push(new THREE.Vector2(val4[0], val4[1])); // rubix
             // faceUV.push(new THREE.Vector2(val3[0], val3[1]));
             // console.log(redPts[getAssociation(index, index2)]);
-
-
         });
-
         projectionCube.faceVertexUvs[0].push(faceUV);
     });
-    if(rubix){
-    createUVS(rubixPoints);
-    }
-    else{
-     createUVS(vertexPoints);     // rubix
-}
+
+    if (rubix) { createUVS(rubixPoints); } else { createUVS(vertexPoints); }
+
+
     // change geometry -> projectionCube if used
     //This injected code calculates the UVs for a Planar Surface
     //Consider modifying to fit three planar surfaces (since that's what makes up our mesh)
@@ -341,7 +315,6 @@ function init() {
     projectionCube.computeFaceNormals();
     projectionCube.computeVertexNormals();
 
-    // cube = new THREE.Mesh(projectionCube, material);     //rubix
     cube = new THREE.Mesh(projectionCube, material);
     cube.position.y = 100;
     scene.add(cube);
@@ -351,7 +324,6 @@ function init() {
     rotateCube(cube, 0, -.3, 0);
     rotateCube(cube, .3, 0, 0);
     //end rubix
-
 }
 
 
@@ -369,11 +341,9 @@ function update() {
     if (keyboard.pressed("W") || keyboard.pressed("up")) {
         movingCube.translateZ(-moveDistance);
     }
-
     if (keyboard.pressed("S") || keyboard.pressed("down")) {
         movingCube.translateZ(moveDistance);
     }
-
     if (keyboard.pressed("A") || keyboard.pressed("left")) {
         if (movingCube.rotation.y <= angleLimit) {
             movingCube.translateX(-moveDistance);
@@ -408,9 +378,6 @@ function update() {
     movingCube.lookAt(targetCube.position);
     stats.update();
 }
-
-
-
 
 
 
@@ -527,7 +494,7 @@ function updateUVS(uvArray) {
 function contains(arr, obj) {
     for (var i = 0; i < arr.length; i++) {
         var comp = new THREE.Vector2(arr[i].x, arr[i].y);
-        if (comp.x == obj.x && comp.y == obj.y){
+        if (comp.x == obj.x && comp.y == obj.y) {
             return true;
         }
     }
@@ -581,7 +548,7 @@ function render() {
         drawPoint('TextureViewCanvas', screenPoint.x, screenPoint.y, index, "red");
     });
 
-    //updateUVS(pts);
+    //updateUVS(pts);       // pass new points
     console.log(JSON.stringify(pts));
     firstTime = false;
 }
@@ -658,16 +625,6 @@ function drawPoint(canvasID, x, y, idx, color) {
 
 
 /*============== Cube Mapping Functions ===============*/
-// function getAssociation(x, y) {
-//     var foundIndex = 0;
-//     associations.forEach(function(val, index, array) {
-//         val.forEach(function(val2, index2, array2) {
-//             if (val2[0] === x && val2[1] === y) foundIndex = index;
-//         });
-//     })
-//     return foundIndex;
-// }
-
 function reorderVertexPoints(vertexPoints, mapVertsToUVVert) {
     var returnPoints = []
     mapVertsToUVVert.forEach(function(val, idx, array) {
@@ -680,17 +637,6 @@ function reorderVertexPoints(vertexPoints, mapVertsToUVVert) {
 
 
 /*================== Test Functions ==================*/
-// positioning static points
-function drawTestPoints(color) {
-  //  var loopPoints=  vertexPoints;
-    var loopPoints=  rubixPoints;
-    vertexPoints.forEach(function(val, index, array) {
-        // val2 = vertexPoints[mapVertsToUVVert[mapVertsToUVVert[index]]];
-        var vect = vectorToScreen(UVtoVector(new THREE.Vector2(val2[0], val2[1])));
-        drawPoint('TextureViewCanvas', vect.x, vect.y, index, color);
-    });
-}
-
 // scales rubix cube
 function scaleCube(cube, x, y, z) {
     cube.scale.x = x;

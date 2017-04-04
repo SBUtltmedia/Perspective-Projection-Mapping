@@ -89,7 +89,7 @@ var rubixPoints = [
 
 // var mapVertsToUVVert = [4, 0, 5, 3, 1, 6, 2];
 // var mapVertsToUVVert = [0, 1, 2, 3, 4, 5, 6];
-var mapVertsToUVVert = [1, 4, 6, 3, 0, 2, 5];
+// var mapVertsToUVVert = [1, 4, 6, 3, 0, 2, 5];
 
 
 

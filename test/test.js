@@ -1,4 +1,3 @@
-// INPUT:
 var realOrderPoints = [
     [0.2908355050629197, 0.644665000100760], // 0
     [0.4975054795604854, 0.606452937014772], // 1
@@ -10,7 +9,6 @@ var realOrderPoints = [
     [0.5016788268098611, 0.428357748114594], // 7        DEL
 ]
 
-// OUTPUT:
 var vertexPoints = [
     [0.5011, 0.6064], // A
     [0.6334, 0.6445], // B
@@ -22,19 +20,29 @@ var vertexPoints = [
 ]
 
 
+
+
 var reorderArray = calculateReorderPoints(realOrderPoints, vertexPoints);
+var updatedPts = updatePts(vertexPoints, realOrderPoints, reorderArray);
+console.log(updatedPts);
+// console.log(realOrderPoints);
+// console.log(vertexPoints);
 
 
-// To Do: apply reorderArray sequence to realOrderPoints. Generate new array with ordered values.
-function getArr(vertexPoints, reOrderArray) {
-    var orderedArr;
-    return orderedArr;
+
+function updatePts(vertexPoints, realOrderPoints, reorderArray) {
+    var updatedPts = [];
+    reorderArray.forEach(function(val, index, array) {
+        updatedPts.push(realOrderPoints[reorderArray[index]]);
+    });
+    return updatedPts;
 }
+
 
 
 function calculateReorderPoints(realOrderPoints, vertexPoints) {
     var distanceArr = [];
-    realOrderPoints.pop()
+    realOrderPoints.pop();
     realOrderPoints.forEach(function(val, index, array) {
         var minVal = 1000;
         var minIndex = 0;
@@ -45,11 +53,12 @@ function calculateReorderPoints(realOrderPoints, vertexPoints) {
                 minIndex = index2;
             }
         });
-        console.log(minVal)
         distanceArr.push(minIndex);
     });
     return distanceArr;
 }
+
+
 
 
 
@@ -75,7 +84,6 @@ var realOrderPoints = [
     [0.5016788268098611, 0.428357748114594],        // 7        DEL
 ]
 
-// OUTPUT:
 var vertexPoints = [
     [0.5011, 0.6064], // A
     [0.6334, 0.6445], // B
@@ -88,7 +96,25 @@ var vertexPoints = [
 ]
 
 
-> 4 0 5 2 1 6 2
+
+
+> 4 0 5 3 1 6 2
+
+
+
+OUTPUT:
+var reorderArr = [
+    [0.7098655613684729, 0.644041915810630],        // 4
+    [0.2908355050629197, 0.644665000100760],        // 0
+    [0.5017728817543318, 0.671290203754576],        // 5
+    [0.4976877521637637, 0.276594389044925],        // 3
+    [0.4975054795604854, 0.606452937014772],        // 1
+    [0.6969444100477866, 0.363786872907236],        // 6
+    [0.3036731145136822, 0.365250418155803],        // 2
+]
+
+
+
 
 
 // BASE CASE:
