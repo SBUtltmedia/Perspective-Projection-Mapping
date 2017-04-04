@@ -264,7 +264,7 @@ function init() {
     } else {
         var material = new THREE.MeshBasicMaterial({ map: finalRenderTarget.texture, side: THREE.DoubleSide, overdraw: 0.5 });
     }
-    // reorderedVertexPoints = reorderVertexPoints(vertexPoints, mapVertsToUVVert);
+    // reorderedVertexPts = reorderVertexPts(vertexPts, mapVertsToUVVert);
 
 
     var faceHolder = [];
@@ -276,9 +276,9 @@ function init() {
         var faceUV = [];
         val.forEach(function(val2, index2, array2) {
             // val3 = redPts[getAssociation(index, index2)];
-            // val3 = reorderedVertexPoints[getAssociation(index, index2)];
+            // val3 = reorderedVertexPts[getAssociation(index, index2)];
             val4 = rubixPoints[val2];
-            console.log(val4, val2);
+            // console.log(val4, val2);
             faceUV.push(new THREE.Vector2(val4[0], val4[1])); // rubix
             // faceUV.push(new THREE.Vector2(val3[0], val3[1]));
             // console.log(redPts[getAssociation(index, index2)]);
@@ -286,7 +286,7 @@ function init() {
         projectionCube.faceVertexUvs[0].push(faceUV);
     });
 
-    if (rubix) { createUVS(rubixPoints); } else { createUVS(vertexPoints); }
+    if (rubix) { createUVS(rubixPoints); } else { createUVS(vertexPts); }
 
 
     // change geometry -> projectionCube if used
@@ -326,6 +326,53 @@ function init() {
     //end rubix
 }
 
+function render() {
+    //    textureCamera is located at the position of movingCube
+    //    (and therefore is contained within it)
+    //    Thus, we temporarily hide movingCube 
+    //    so that it does not obscure the view from the camera.
+    movingCube.visible = false;
+    //    put the result of textureCamera into the first texture.
+    renderer.render(scene, textureCamera, finalRenderTarget, true);
+    movingCube.visible = true;
+
+    //    slight problem: texture is mirrored.
+    //    solve problem by rendering (and hence mirroring) the texture again
+
+    //    render another scene containing just a quad with the texture
+    //    and put the result into the final texture
+    //    renderer.render( screenScene, screenCamera, finalRenderTarget, true );
+
+    // render the main scene
+    renderer.render(scene, mainCamera);
+    renderer2.render(scene, textureCamera);
+
+    var worldTC = getWorldPosVertices(targetCube);
+    var pts = [];
+
+    $.each(worldTC, function(index, val) {
+        //var screenPoint = Point3DToScreen2D(val, textureCamera)
+        var coordPoint = Point3DtoCoord(val, textureCamera);
+        var vectUV = vectorToUV(coordPoint);
+        pts.push([vectUV.x, vectUV.y]);
+
+        // console.log([vectUV.x,vectUV.y])
+        // console.log(vectorToUV(coordPoint));
+        var screenPoint = vectorToScreen(coordPoint);
+        drawPoint('TextureViewCanvas', screenPoint.x, screenPoint.y, index, "red");
+
+    });
+
+
+    // temporary placement for testing
+    var reorderArray = calculateReorderPoints(pts, vertexPts);
+    var updatedPts = updatePts(vertexPts, pts, reorderArray);
+
+    // updateUVS(pts);
+    updateUVS(updatedPts);
+    // console.log(JSON.stringify(pts));
+    firstTime = false;
+}
 
 
 
@@ -461,34 +508,41 @@ function findDupFuvs(pntArr) {
 }
 
 
-// fix this
+
 function createUVS(uvArray) {
     projectionCube.faceVertexUvs[0] = [];
     faceRubix.forEach(function(val, index, array) {
         var faceUV = [];
         val.forEach(function(val2, index2, array2) {
-
             val4 = uvArray[val2];
-            console.log(val4, val2);
+            // console.log(val4, val2);
             faceUV.push(new THREE.Vector2(val4[0], val4[1])); // rubix
         });
 
         projectionCube.faceVertexUvs[0].push(faceUV);
-        projectionCube.uvsNeedUpdate = true;
+
     });
+    //  projectionCube.uvsNeedUpdate = true;
 }
 
 
 
 
+
+// shrn: fix this
 function updateUVS(uvArray) {
+    var vertex = 0;
     faceRubix.forEach(function(val, index, array) {
-        console.log(projectionCube.faceVertexUvs)
-        projectionCube.faceVertexUvs[0][index][0].set(uvArray[0][0], uvArray[0][1]);
-        projectionCube.faceVertexUvs[0][index][1].set(uvArray[1][0], uvArray[1][1]);
-        projectionCube.faceVertexUvs[0][index][2].set(uvArray[2][0], uvArray[2][1]);
+
+        // issue is here:
+        console.log(JSON.stringify(projectionCube.faceVertexUvs))
+        projectionCube.faceVertexUvs[0][index][0].set(uvArray[val[0]][0], uvArray[val[0]][1]); 
+        projectionCube.faceVertexUvs[0][index][1].set(uvArray[val[1]][0], uvArray[val[1]][1]);
+        projectionCube.faceVertexUvs[0][index][2].set(uvArray[val[2]][0], uvArray[val[2]][1]);
+
 
     });
+    projectionCube.uvsNeedUpdate = true;
 }
 
 function contains(arr, obj) {
@@ -512,46 +566,6 @@ function animate() {
 
 
 
-function render() {
-    // textureCamera is located at the position of movingCube
-    //   (and therefore is contained within it)
-    // Thus, we temporarily hide movingCube 
-    //    so that it does not obscure the view from the camera.
-    movingCube.visible = false;
-    // put the result of textureCamera into the first texture.
-    renderer.render(scene, textureCamera, finalRenderTarget, true);
-    movingCube.visible = true;
-
-    // slight problem: texture is mirrored.
-    //    solve problem by rendering (and hence mirroring) the texture again
-
-    // render another scene containing just a quad with the texture
-    //    and put the result into the final texture
-    //renderer.render( screenScene, screenCamera, finalRenderTarget, true );
-
-    // render the main scene
-    renderer.render(scene, mainCamera);
-    renderer2.render(scene, textureCamera);
-
-    var worldTC = getWorldPosVertices(targetCube);
-    var pts = [];
-
-    $.each(worldTC, function(index, val) {
-        //var screenPoint = Point3DToScreen2D(val, textureCamera)
-        var coordPoint = Point3DtoCoord(val, textureCamera);
-        var vectUV = vectorToUV(coordPoint);
-        pts.push([vectUV.x, vectUV.y]);
-
-        // console.log([vectUV.x,vectUV.y])
-        // console.log(vectorToUV(coordPoint));
-        var screenPoint = vectorToScreen(coordPoint);
-        drawPoint('TextureViewCanvas', screenPoint.x, screenPoint.y, index, "red");
-    });
-
-    //updateUVS(pts);       // pass new points
-    console.log(JSON.stringify(pts));
-    firstTime = false;
-}
 
 
 
@@ -625,12 +639,38 @@ function drawPoint(canvasID, x, y, idx, color) {
 
 
 /*============== Cube Mapping Functions ===============*/
-function reorderVertexPoints(vertexPoints, mapVertsToUVVert) {
+function reorderVertexPts(vertexPts, mapVertsToUVVert) {
     var returnPoints = []
     mapVertsToUVVert.forEach(function(val, idx, array) {
-        returnPoints.push(vertexPoints[val])
+        returnPoints.push(vertexPts[val])
     })
     return returnPoints;
+}
+
+function updatePts(vertexPts, pts, reorderArray) {
+    var updatedPts = [];
+    reorderArray.forEach(function(val, index, array) {
+        updatedPts.push(pts[reorderArray[index]]);
+    });
+    return updatedPts;
+}
+
+function calculateReorderPoints(pts, vertexPts) {
+    var distanceArr = [];
+    pts.pop();
+    pts.forEach(function(val, index, array) {
+        var minVal = 1000;
+        var minIndex = 0;
+        vertexPts.forEach(function(val2, index2, array2) {
+            var totalDist = Math.abs(val[0] - val2[0]) + Math.abs(val[1] - val2[1]);
+            if (totalDist < minVal) {
+                minVal = totalDist;
+                minIndex = index2;
+            }
+        });
+        distanceArr.push(minIndex);
+    });
+    return distanceArr;
 }
 /*====================================================*/
 
