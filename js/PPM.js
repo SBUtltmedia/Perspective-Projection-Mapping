@@ -35,7 +35,7 @@ var tcFaces;
 
 
 
-$(function() {
+$(function () {
     init();
     animate();
 });
@@ -45,11 +45,11 @@ $(function() {
 
 /*================== Functions ==================*/
 function init() {
-    $.each([1, 2, 3, 4, 5, 6, 7, 8], function(idx, val) {
+    $.each([1, 2, 3, 4, 5, 6, 7, 8], function (idx, val) {
         $("#TextureView").append("<div class='vertexDiv' id='vert" + idx + "'></div>")
     })
 
-    $.each([1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12], function(idx, val) {
+    $.each([1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12], function (idx, val) {
         $("#TextureView").append("<div class='UVDiv' id='UV" + idx + "'></div>")
     })
 
@@ -87,7 +87,9 @@ function init() {
 
     // RENDERER
     if (Detector.webgl)
-        renderer = new THREE.WebGLRenderer({ antialias: true });
+        renderer = new THREE.WebGLRenderer({
+            antialias: true
+        });
     else
         renderer = new THREE.CanvasRenderer();
     renderer.setSize(SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2);
@@ -101,7 +103,9 @@ function init() {
     container2.appendChild(renderer2.domElement);
     $('#TextureView canvas').attr("id", 'TextureViewCanvas')
 
-    renderer3 = new THREE.WebGLRenderer({ antialias: true });
+    renderer3 = new THREE.WebGLRenderer({
+        antialias: true
+    });
     renderer3.setSize(SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2);
     container3 = document.getElementById('UVView');
     container3.appendChild(renderer3.domElement);
@@ -111,7 +115,9 @@ function init() {
     THREEx.WindowResize(renderer, mainCamera);
     THREEx.WindowResize(renderer2, mainCamera);
     THREEx.WindowResize(renderer3, mainCamera);
-    THREEx.FullScreen.bindKey({ charCode: 'm'.charCodeAt(0) });
+    THREEx.FullScreen.bindKey({
+        charCode: 'm'.charCodeAt(0)
+    });
 
     // STATS
     stats = new Stats();
@@ -130,7 +136,10 @@ function init() {
     var floorTexture = new THREE.ImageUtils.loadTexture('images/checkerboard.jpg');
     floorTexture.wrapS = floorTexture.wrapT = THREE.RepeatWrapping;
     floorTexture.repeat.set(10, 10);
-    var floorMaterial = new THREE.MeshBasicMaterial({ map: floorTexture, side: THREE.DoubleSide });
+    var floorMaterial = new THREE.MeshBasicMaterial({
+        map: floorTexture,
+        side: THREE.DoubleSide
+    });
     var floorGeometry = new THREE.PlaneGeometry(1000, 1000, 1);
     var floor = new THREE.Mesh(floorGeometry, floorMaterial);
     floor.position.y = 0;
@@ -142,12 +151,24 @@ function init() {
 
     // SKYBOX/FOG
     var materialArray = [];
-    materialArray.push(new THREE.MeshBasicMaterial({ map: THREE.ImageUtils.loadTexture('images/dawnmountain-xpos.png') }));
-    materialArray.push(new THREE.MeshBasicMaterial({ map: THREE.ImageUtils.loadTexture('images/dawnmountain-xneg.png') }));
-    materialArray.push(new THREE.MeshBasicMaterial({ map: THREE.ImageUtils.loadTexture('images/dawnmountain-ypos.png') }));
-    materialArray.push(new THREE.MeshBasicMaterial({ map: THREE.ImageUtils.loadTexture('images/dawnmountain-yneg.png') }));
-    materialArray.push(new THREE.MeshBasicMaterial({ map: THREE.ImageUtils.loadTexture('images/dawnmountain-zpos.png') }));
-    materialArray.push(new THREE.MeshBasicMaterial({ map: THREE.ImageUtils.loadTexture('images/dawnmountain-zneg.png') }));
+    materialArray.push(new THREE.MeshBasicMaterial({
+        map: THREE.ImageUtils.loadTexture('images/dawnmountain-xpos.png')
+    }));
+    materialArray.push(new THREE.MeshBasicMaterial({
+        map: THREE.ImageUtils.loadTexture('images/dawnmountain-xneg.png')
+    }));
+    materialArray.push(new THREE.MeshBasicMaterial({
+        map: THREE.ImageUtils.loadTexture('images/dawnmountain-ypos.png')
+    }));
+    materialArray.push(new THREE.MeshBasicMaterial({
+        map: THREE.ImageUtils.loadTexture('images/dawnmountain-yneg.png')
+    }));
+    materialArray.push(new THREE.MeshBasicMaterial({
+        map: THREE.ImageUtils.loadTexture('images/dawnmountain-zpos.png')
+    }));
+    materialArray.push(new THREE.MeshBasicMaterial({
+        map: THREE.ImageUtils.loadTexture('images/dawnmountain-zneg.png')
+    }));
     for (var i = 0; i < 6; i++)
         materialArray[i].side = THREE.BackSide;
     var skyboxMaterial = new THREE.MeshFaceMaterial(materialArray);
@@ -174,12 +195,30 @@ function init() {
 
     // create an array with six textures for a cool cube
     var materialArray = [];
-    materialArray.push(new THREE.MeshBasicMaterial({ map: THREE.ImageUtils.loadTexture('images/xpos.png'), overdraw: 0.5 }));
-    materialArray.push(new THREE.MeshBasicMaterial({ map: THREE.ImageUtils.loadTexture('images/xneg.png'), overdraw: 0.5 }));
-    materialArray.push(new THREE.MeshBasicMaterial({ map: THREE.ImageUtils.loadTexture('images/ypos.png'), overdraw: 0.5 }));
-    materialArray.push(new THREE.MeshBasicMaterial({ map: THREE.ImageUtils.loadTexture('images/yneg.png'), overdraw: 0.5 }));
-    materialArray.push(new THREE.MeshBasicMaterial({ map: THREE.ImageUtils.loadTexture('images/zpos.png'), overdraw: 0.5 }));
-    materialArray.push(new THREE.MeshBasicMaterial({ map: THREE.ImageUtils.loadTexture('images/zneg.png'), overdraw: 0.5 }));
+    materialArray.push(new THREE.MeshBasicMaterial({
+        map: THREE.ImageUtils.loadTexture('images/xpos.png'),
+        overdraw: 0.5
+    }));
+    materialArray.push(new THREE.MeshBasicMaterial({
+        map: THREE.ImageUtils.loadTexture('images/xneg.png'),
+        overdraw: 0.5
+    }));
+    materialArray.push(new THREE.MeshBasicMaterial({
+        map: THREE.ImageUtils.loadTexture('images/ypos.png'),
+        overdraw: 0.5
+    }));
+    materialArray.push(new THREE.MeshBasicMaterial({
+        map: THREE.ImageUtils.loadTexture('images/yneg.png'),
+        overdraw: 0.5
+    }));
+    materialArray.push(new THREE.MeshBasicMaterial({
+        map: THREE.ImageUtils.loadTexture('images/zpos.png'),
+        overdraw: 0.5
+    }));
+    materialArray.push(new THREE.MeshBasicMaterial({
+        map: THREE.ImageUtils.loadTexture('images/zneg.png'),
+        overdraw: 0.5
+    }));
 
     var movingCubeMat = new THREE.MeshFaceMaterial(materialArray);
     var movingCubeGeom = new THREE.CubeGeometry(50, 50, 50, 1, 1, 1, materialArray);
@@ -193,12 +232,19 @@ function init() {
     movingCube.add(textureCamera);
     scene.add(movingCube);
 
-    var blueMaterial = new THREE.MeshBasicMaterial({ color: 0x0000ff, transparent: true, opacity: 0.25, overdraw: 0.5 });
+    var blueMaterial = new THREE.MeshBasicMaterial({
+        color: 0x0000ff,
+        transparent: true,
+        opacity: 0.25,
+        overdraw: 0.5
+    });
     var cubeGeometry = new THREE.CubeGeometry(100, 100, 100);
     targetCube = new THREE.Mesh(cubeGeometry, blueMaterial);
 
     // shape within cube
-    var icoMat = new THREE.MeshNormalMaterial({ shading: THREE.FlatShading });
+    var icoMat = new THREE.MeshNormalMaterial({
+        shading: THREE.FlatShading
+    });
     var icoGeo = new THREE.IcosahedronGeometry(50, 0);
     // var icoGeo = new THREE.CubeGeometry(50, 10, 20);
     objOfInterest = new THREE.Mesh(icoGeo, icoMat);
@@ -228,8 +274,12 @@ function init() {
 
     var screenGeometry = new THREE.PlaneGeometry(window.innerWidth, window.innerHeight);
 
-    firstRenderTarget = new THREE.WebGLRenderTarget(1024, 1024, { format: THREE.RGBFormat });
-    var screenMaterial = new THREE.MeshBasicMaterial({ map: firstRenderTarget });
+    firstRenderTarget = new THREE.WebGLRenderTarget(1024, 1024, {
+        format: THREE.RGBFormat
+    });
+    var screenMaterial = new THREE.MeshBasicMaterial({
+        map: firstRenderTarget
+    });
 
     var quad = new THREE.Mesh(screenGeometry, screenMaterial);
     // quad.rotation.x = Math.PI / 2;
@@ -239,7 +289,9 @@ function init() {
     var renderedCubeGeom = new THREE.CubeGeometry(120, 120, 120);
 
 
-    finalRenderTarget = new THREE.WebGLRenderTarget(1024, 1024, { format: THREE.RGBFormat }); // shrn
+    finalRenderTarget = new THREE.WebGLRenderTarget(1024, 1024, {
+        format: THREE.RGBFormat
+    }); // shrn
 
     //start rubix
     projectionCube = new THREE.Geometry();
@@ -257,24 +309,34 @@ function init() {
 
 
     /*================== Rubik's Cube ==================*/
-    finalRenderTarget = new THREE.WebGLRenderTarget(1024, 1024, { format: THREE.RGBFormat }); // shrn
+    finalRenderTarget = new THREE.WebGLRenderTarget(1024, 1024, {
+        format: THREE.RGBFormat
+    }); // shrn
     if (rubix) {
         var rubiksTex = loader.load("images/rubix_cube2.jpg");
-        var material = new THREE.MeshBasicMaterial({ map: rubiksTex, side: THREE.DoubleSide, overdraw: 0.5 });
+        var material = new THREE.MeshBasicMaterial({
+            map: rubiksTex,
+            side: THREE.DoubleSide,
+            overdraw: 0.5
+        });
     } else {
-        var material = new THREE.MeshBasicMaterial({ map: finalRenderTarget.texture, side: THREE.DoubleSide, overdraw: 0.5 });
+        var material = new THREE.MeshBasicMaterial({
+            map: finalRenderTarget.texture,
+            side: THREE.DoubleSide,
+            overdraw: 0.5
+        });
     }
     // reorderedVertexPts = reorderVertexPts(vertexPts, mapVertsToUVVert);
 
 
     var faceHolder = [];
-    faceInfo.forEach(function(val, index, array) {
+    faceInfo.forEach(function (val, index, array) {
         projectionCube.faces.push(new THREE.Face3(val[0], val[1], val[2], color, materialIndex))
     });
 
-    faceRubix.forEach(function(val, index, array) {
+    faceRubix.forEach(function (val, index, array) {
         var faceUV = [];
-        val.forEach(function(val2, index2, array2) {
+        val.forEach(function (val2, index2, array2) {
             // val3 = redPts[getAssociation(index, index2)];
             // val3 = reorderedVertexPts[getAssociation(index, index2)];
             val4 = rubixPoints[val2];
@@ -286,7 +348,11 @@ function init() {
         projectionCube.faceVertexUvs[0].push(faceUV);
     });
 
-    if (rubix) { createUVS(rubixPoints); } else { createUVS(vertexPts); }
+    if (rubix) {
+        createUVS(rubixPoints);
+    } else {
+        createUVS(vertexPts);
+    }
 
 
     // change geometry -> projectionCube if used
@@ -350,7 +416,7 @@ function render() {
     var worldTC = getWorldPosVertices(targetCube);
     var pts = [];
 
-    $.each(worldTC, function(index, val) {
+    $.each(worldTC, function (index, val) {
         //var screenPoint = Point3DToScreen2D(val, textureCamera)
         var coordPoint = Point3DtoCoord(val, textureCamera);
         var vectUV = vectorToUV(coordPoint);
@@ -367,9 +433,9 @@ function render() {
     // temporary placement for testing
     var reorderArray = calculateReorderPoints(pts, vertexPts);
     var updatedPts = updatePts(vertexPts, pts, reorderArray);
-
+    if (Math.random() > .99) console.log(updatedPts)
     // updateUVS(pts);
-    updateUVS(updatedPts);
+    updateUVS(updatedPts);          // shrn
     // console.log(JSON.stringify(pts));
     firstTime = false;
 }
@@ -509,20 +575,17 @@ function findDupFuvs(pntArr) {
 
 
 
-function createUVS(uvArray) {
+function createUVS(uvArr) {
     projectionCube.faceVertexUvs[0] = [];
-    faceRubix.forEach(function(val, index, array) {
+    faceRubix.forEach(function (val, index, array) {
         var faceUV = [];
-        val.forEach(function(val2, index2, array2) {
-            val4 = uvArray[val2];
-            // console.log(val4, val2);
+        val.forEach(function (val2, index2, array2) {
+            val4 = uvArr[val2];
             faceUV.push(new THREE.Vector2(val4[0], val4[1])); // rubix
         });
-
         projectionCube.faceVertexUvs[0].push(faceUV);
-
     });
-    //  projectionCube.uvsNeedUpdate = true;
+    projectionCube.uvsNeedUpdate = true;
 }
 
 
@@ -530,20 +593,24 @@ function createUVS(uvArray) {
 
 
 // shrn: fix this
-function updateUVS(uvArray) {
+function updateUVS(uvArr) {
     var vertex = 0;
-    faceRubix.forEach(function(val, index, array) {
+    if (firstTime) {
+        console.log(JSON.stringify(projectionCube.faceVertexUvs[0]))
 
-        // issue is here:
+        faceRubix.forEach(function (val, index, array) {
+            [0, 1, 2].forEach(function (val2, index2, array2) { // issue is here:
+                console.log(uvArr, uvArr[val[index2]][0]);
+                projectionCube.faceVertexUvs[0][index][index2].set(uvArr[val[index2]][0], uvArr[val[index2]][1]);
+            })
+        });
+        //  projectionCube.uvsNeedUpdate = true;
         console.log(JSON.stringify(projectionCube.faceVertexUvs))
-        projectionCube.faceVertexUvs[0][index][0].set(uvArray[val[0]][0], uvArray[val[0]][1]); 
-        projectionCube.faceVertexUvs[0][index][1].set(uvArray[val[1]][0], uvArray[val[1]][1]);
-        projectionCube.faceVertexUvs[0][index][2].set(uvArray[val[2]][0], uvArray[val[2]][1]);
-
-
-    });
-    projectionCube.uvsNeedUpdate = true;
+    }
+    
 }
+
+
 
 function contains(arr, obj) {
     for (var i = 0; i < arr.length; i++) {
@@ -572,12 +639,10 @@ function animate() {
 
 
 
-
-
 function uv2vert(geometry, faceIndex, vertexIndex) {
     return geometry.vertices[
         geometry.faces[faceIndex][String.fromCharCode(97 + vertexIndex)]
-    ];
+        ];
 }
 
 function vectorToScreen(vector) {
@@ -612,7 +677,7 @@ function ppmCamera() {
     var worldTC = getWorldPosVertices(targetCube); // 8 of these total (0 - 7)
     var targs = [];
 
-    $.each(worldTC, function(index, val) {
+    $.each(worldTC, function (index, val) {
         var screenPoint = Point3DToScreen2D(val, textureCamera);
         targs.push(normPoint('TextureViewCanvas', screenPoint.x, -screenPoint.y));
     });
@@ -630,7 +695,11 @@ function drawPoint(canvasID, x, y, idx, color) {
     var can = document.getElementById(canvasID);
     // console.log(x * width, y * height);
     //    console.log(x * width, y * height);
-    $("#vert" + idx).css({ "left": (x) + "px", "top": (y) + "px", "backgroundColor": color });
+    $("#vert" + idx).css({
+        "left": (x) + "px",
+        "top": (y) + "px",
+        "backgroundColor": color
+    });
     return [x / can.width, -y / can.width]
 }
 
@@ -641,7 +710,7 @@ function drawPoint(canvasID, x, y, idx, color) {
 /*============== Cube Mapping Functions ===============*/
 function reorderVertexPts(vertexPts, mapVertsToUVVert) {
     var returnPoints = []
-    mapVertsToUVVert.forEach(function(val, idx, array) {
+    mapVertsToUVVert.forEach(function (val, idx, array) {
         returnPoints.push(vertexPts[val])
     })
     return returnPoints;
@@ -649,7 +718,7 @@ function reorderVertexPts(vertexPts, mapVertsToUVVert) {
 
 function updatePts(vertexPts, pts, reorderArray) {
     var updatedPts = [];
-    reorderArray.forEach(function(val, index, array) {
+    reorderArray.forEach(function (val, index, array) {
         updatedPts.push(pts[reorderArray[index]]);
     });
     return updatedPts;
@@ -658,10 +727,10 @@ function updatePts(vertexPts, pts, reorderArray) {
 function calculateReorderPoints(pts, vertexPts) {
     var distanceArr = [];
     pts.pop();
-    pts.forEach(function(val, index, array) {
+    pts.forEach(function (val, index, array) {
         var minVal = 1000;
         var minIndex = 0;
-        vertexPts.forEach(function(val2, index2, array2) {
+        vertexPts.forEach(function (val2, index2, array2) {
             var totalDist = Math.abs(val[0] - val2[0]) + Math.abs(val[1] - val2[1]);
             if (totalDist < minVal) {
                 minVal = totalDist;
