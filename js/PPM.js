@@ -1,14 +1,68 @@
 /*
-    Three.js "tutorials by example"
-    Author: Lee Stemkoski
-    Date: July 2013 (three.js v59dev)
+	  UV // Vector // Screen Reference
+
+	  Note:
+	      - UV       (1,1) is upper top limit.
+	      - Vector   (1,1) is 
+	      - Screen   (1,1) is 
+	  
+	  (( x indicates origin ))
+
+
+    =======================================
+	UV (texture map)
+    (0,0) ~ (1,1)
+
+	|           .      (1,1)
+	|     
+	|   
+	|
+	x------------
+    
+    =======================================
+
+	Vector (3d/threejs)
+    (-∞, -∞) ~ (∞, ∞)
+
+	            |
+	            |    
+	            |           (1,1)
+	            | .
+	------------x------------
+	            |
+	            |   
+	            |
+	            |
+    
+    =======================================
+	    
+	Screen (div/html)
+    (0,0) ~ (∞, -∞)
+    
+	x------------
+	| .             (1,1)
+	|   
+	|
+	|              
+    
+    
+    =======================================
+
+
 */
+
+
+
 
 // MAIN TODO:
 // Find the correspondance between movements of the MovingCube and the uv mapping of the rendered object (using the blue cube in this case);
 //      - [DONE] Find world space coordinates of vertices
 //      - [DONE] Set up distance calculation
 //      - [IP] Figure out factor to multiply distance by to use in UV change calculation
+
+
+
+
 
 
 // standard global variables
@@ -326,8 +380,8 @@ function init() {
             overdraw: 0.5
         });
     }
-    // reorderedVertexPts = reorderVertexPts(vertexPts, mapVertsToUVVert);
-
+    reorderedVertexPts = calculateReorderPoints(vertexPts, vertexPts2);
+    console.log(reorderedVertexPts, vertexPts, vertexPts2)
 
     var faceHolder = [];
     faceInfo.forEach(function (val, index, array) {
@@ -422,23 +476,72 @@ function render() {
         var vectUV = vectorToUV(coordPoint);
         pts.push([vectUV.x, vectUV.y]);
 
-        // console.log([vectUV.x,vectUV.y])
-        // console.log(vectorToUV(coordPoint));
+
+
+
         var screenPoint = vectorToScreen(coordPoint);
         drawPoint('TextureViewCanvas', screenPoint.x, screenPoint.y, index, "red");
 
     });
 
 
+    console.log(JSON.stringify(pts));
+
     // temporary placement for testing
     var reorderArray = calculateReorderPoints(pts, vertexPts);
     var updatedPts = updatePts(vertexPts, pts, reorderArray);
-    if (Math.random() > .99) console.log(updatedPts)
+    // if (Math.random() > .99) console.log(updatedPts)
+
+
+    //    console.log(updatedPts);
+
     // updateUVS(pts);
-    updateUVS(updatedPts);          // shrn
+    updateUVS(updatedPts); // shrn
     // console.log(JSON.stringify(pts));
     firstTime = false;
 }
+
+
+
+
+// shrn: fix this
+function updateUVS(uvArr) {
+
+
+
+
+    var vertex = 0;
+    if (firstTime || 1) {
+        // console.log(JSON.stringify(projectionCube.faceVertexUvs[0]))
+
+        faceRubix.forEach(function (val, index, array) {
+            [0, 1, 2].forEach(function (val2, index2, array2) { // issue is here:
+
+                //   projectionCube.faceVertexUvs[0][index][index2].set(uvArr[val[index2]][0], uvArr[val[index2]][1]);
+            })
+        });
+        projectionCube.uvsNeedUpdate = true;
+        if (Math.random() > .999) console.log(JSON.stringify(projectionCube.faceVertexUvs))
+    }
+
+
+    //        console.log(uvArr);
+}
+
+function createUVS(uvArr) {
+    projectionCube.faceVertexUvs[0] = [];
+    faceRubix.forEach(function (val, index, array) {
+        var faceUV = [];
+        val.forEach(function (val2, index2, array2) {
+            val4 = uvArr[val2];
+            faceUV.push(new THREE.Vector2(val4[0], val4[1])); // rubix
+        });
+        projectionCube.faceVertexUvs[0].push(faceUV);
+    });
+    projectionCube.uvsNeedUpdate = true;
+    console.log(JSON.stringify(projectionCube.faceVertexUvs))
+}
+
 
 
 
@@ -510,6 +613,7 @@ function Point3DToScreen2D(point3D, camera) {
     return vectorToScreen(Point3DtoCoord(point3D, camera))
 }
 
+// xyz -> xy
 function Point3DtoCoord(point3D, camera) {
     var p = point3D.clone();
     var canvas = document.getElementById('TJSCanvas');
@@ -575,40 +679,8 @@ function findDupFuvs(pntArr) {
 
 
 
-function createUVS(uvArr) {
-    projectionCube.faceVertexUvs[0] = [];
-    faceRubix.forEach(function (val, index, array) {
-        var faceUV = [];
-        val.forEach(function (val2, index2, array2) {
-            val4 = uvArr[val2];
-            faceUV.push(new THREE.Vector2(val4[0], val4[1])); // rubix
-        });
-        projectionCube.faceVertexUvs[0].push(faceUV);
-    });
-    projectionCube.uvsNeedUpdate = true;
-}
 
 
-
-
-
-// shrn: fix this
-function updateUVS(uvArr) {
-    var vertex = 0;
-    if (firstTime) {
-        console.log(JSON.stringify(projectionCube.faceVertexUvs[0]))
-
-        faceRubix.forEach(function (val, index, array) {
-            [0, 1, 2].forEach(function (val2, index2, array2) { // issue is here:
-                console.log(uvArr, uvArr[val[index2]][0]);
-                projectionCube.faceVertexUvs[0][index][index2].set(uvArr[val[index2]][0], uvArr[val[index2]][1]);
-            })
-        });
-        //  projectionCube.uvsNeedUpdate = true;
-        console.log(JSON.stringify(projectionCube.faceVertexUvs))
-    }
-    
-}
 
 
 
@@ -654,7 +726,7 @@ function vectorToScreen(vector) {
 function vectorToUV(vector) {
     var vect = vector.clone();
     vect.addScalar(1);
-    vect.divideScalar(2);
+    vect.divideScalar(2.02);
     return vect;
 }
 

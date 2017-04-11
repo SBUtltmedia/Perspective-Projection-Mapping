@@ -1,5 +1,15 @@
-// Coordinates 
 
+/*
+    TO DO:
+    - vertexPts2 -> vertexPts
+    - (383 PPM.js) vertexPts -> reorderedPoints 
+                   reorderedVertexPts = calculateReorderPoints(vertexPts, vertexPts2);
+*/
+
+
+
+
+// Coordinates 
 var faceInfo = [
     [4, 3, 0],
     [4, 1, 0],
@@ -27,6 +37,23 @@ var vertexPts = [
     [0.3744, 0.3639], // F
     [0.4991, 0.6713], // G
 ];
+
+
+
+var vertexPts2 = [[0.35280514203281, 0.6377638276271067], 
+                 [0.4962537379096837, 0.600450975028141], 
+                 [0.361560110895126, 0.360386534092595], 
+                 [0.49616573196069336, 0.27383372503507664], 
+                 
+                 [0.6369555131357921, 0.638203046231898], 
+                 [0.4941937539854828, 0.6646573209986875], 
+                 [0.6282408731407816, 0.36141820201560054]
+                ]
+
+
+
+
+
 
 
 // these coordinates update with movement
