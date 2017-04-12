@@ -1,59 +1,3 @@
-/*
-	  UV // Vector // Screen Reference
-
-	  Note:
-	      - UV       (1,1) is upper top limit.
-	      - Vector   (1,1) is 
-	      - Screen   (1,1) is 
-	  
-	  (( x indicates origin ))
-
-
-    =======================================
-	UV (texture map)
-    (0,0) ~ (1,1)
-
-	|           .      (1,1)
-	|     
-	|   
-	|
-	x------------
-    
-    =======================================
-
-	Vector (3d/threejs)
-    (-∞, -∞) ~ (∞, ∞)
-
-	            |
-	            |    
-	            |           (1,1)
-	            | .
-	------------x------------
-	            |
-	            |   
-	            |
-	            |
-    
-    =======================================
-	    
-	Screen (div/html)
-    (0,0) ~ (∞, -∞)
-    
-	x------------
-	| .             (1,1)
-	|   
-	|
-	|              
-    
-    
-    =======================================
-
-
-*/
-
-
-
-
 // MAIN TODO:
 // Find the correspondance between movements of the MovingCube and the uv mapping of the rendered object (using the blue cube in this case);
 //      - [DONE] Find world space coordinates of vertices
@@ -72,7 +16,7 @@ var clock = new THREE.Clock();
 var pressed = false;
 var firstTime = true;
 var interrim, throwaway;
-var rubix = false;
+var rubix =false;
 // custom global variables
 var movingCube, targetCube, renderedCube, objOfInterest, projectionCube;
 var textureCamera, mainCamera;
@@ -106,7 +50,6 @@ function init() {
     $.each([1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12], function (idx, val) {
         $("#TextureView").append("<div class='UVDiv' id='UV" + idx + "'></div>")
     })
-
 
     // SCENE
     scene = new THREE.Scene();
@@ -345,7 +288,7 @@ function init() {
 
     finalRenderTarget = new THREE.WebGLRenderTarget(1024, 1024, {
         format: THREE.RGBFormat
-    }); // shrn
+    });
 
     //start rubix
     projectionCube = new THREE.Geometry();
@@ -360,12 +303,29 @@ function init() {
     var color = new THREE.Color(0xffaa00); //optional
     var materialIndex = 0; //optional
 
-
-
-    /*================== Rubik's Cube ==================*/
     finalRenderTarget = new THREE.WebGLRenderTarget(1024, 1024, {
         format: THREE.RGBFormat
-    }); // shrn
+    });
+    
+    var faceHolder = [];
+    faceInfo.forEach(function (val, index, array) {
+        projectionCube.faces.push(new THREE.Face3(val[0], val[1], val[2], color, materialIndex))
+    });
+
+    
+
+
+    /*================== Rubik's Cube ==================*/    
+    faceRubix.forEach(function (val, index, array) {
+        var faceUV = [];
+        val.forEach(function (val2, index2, array2) {
+            val4 = rubixPoints[val2];
+            faceUV.push(new THREE.Vector2(val4[0], val4[1])); // rubix
+        });
+        projectionCube.faceVertexUvs[0].push(faceUV);
+    });
+    
+
     if (rubix) {
         var rubiksTex = loader.load("images/rubix_cube2.jpg");
         var material = new THREE.MeshBasicMaterial({
@@ -373,40 +333,16 @@ function init() {
             side: THREE.DoubleSide,
             overdraw: 0.5
         });
+        createUVS(rubixPoints);
     } else {
         var material = new THREE.MeshBasicMaterial({
             map: finalRenderTarget.texture,
             side: THREE.DoubleSide,
             overdraw: 0.5
         });
-    }
-    reorderedVertexPts = calculateReorderPoints(vertexPts, vertexPts2);
-    console.log(reorderedVertexPts, vertexPts, vertexPts2)
-
-    var faceHolder = [];
-    faceInfo.forEach(function (val, index, array) {
-        projectionCube.faces.push(new THREE.Face3(val[0], val[1], val[2], color, materialIndex))
-    });
-
-    faceRubix.forEach(function (val, index, array) {
-        var faceUV = [];
-        val.forEach(function (val2, index2, array2) {
-            // val3 = redPts[getAssociation(index, index2)];
-            // val3 = reorderedVertexPts[getAssociation(index, index2)];
-            val4 = rubixPoints[val2];
-            // console.log(val4, val2);
-            faceUV.push(new THREE.Vector2(val4[0], val4[1])); // rubix
-            // faceUV.push(new THREE.Vector2(val3[0], val3[1]));
-            // console.log(redPts[getAssociation(index, index2)]);
-        });
-        projectionCube.faceVertexUvs[0].push(faceUV);
-    });
-
-    if (rubix) {
-        createUVS(rubixPoints);
-    } else {
         createUVS(vertexPts);
     }
+
 
 
     // change geometry -> projectionCube if used
@@ -475,30 +411,32 @@ function render() {
         var coordPoint = Point3DtoCoord(val, textureCamera);
         var vectUV = vectorToUV(coordPoint);
         pts.push([vectUV.x, vectUV.y]);
-
-
-
-
         var screenPoint = vectorToScreen(coordPoint);
         drawPoint('TextureViewCanvas', screenPoint.x, screenPoint.y, index, "red");
-
     });
 
 
-    console.log(JSON.stringify(pts));
+      console.log(JSON.stringify(pts));
 
+    
+    
+    
     // temporary placement for testing
     var reorderArray = calculateReorderPoints(pts, vertexPts);
-    var updatedPts = updatePts(vertexPts, pts, reorderArray);
+    var updatedPts = updatePts(vertexPts, pts, reorderArray);       // shrn: fix this
+
+//    console.log(updatedPts);
+    
+    console.log(calculateReorderPoints(vertexPts,updatedPts))
+    
     // if (Math.random() > .99) console.log(updatedPts)
-
-
     //    console.log(updatedPts);
-
     // updateUVS(pts);
+    
     updateUVS(updatedPts); // shrn
     // console.log(JSON.stringify(pts));
     firstTime = false;
+    
 }
 
 
@@ -506,41 +444,71 @@ function render() {
 
 // shrn: fix this
 function updateUVS(uvArr) {
-
-
-
-
     var vertex = 0;
-    if (firstTime || 1) {
-        // console.log(JSON.stringify(projectionCube.faceVertexUvs[0]))
 
+
+    if (rubix) {
         faceRubix.forEach(function (val, index, array) {
             [0, 1, 2].forEach(function (val2, index2, array2) { // issue is here:
-
-                //   projectionCube.faceVertexUvs[0][index][index2].set(uvArr[val[index2]][0], uvArr[val[index2]][1]);
+                console.log(uvArr, uvArr[val[index2]][0]);
+                projectionCube.faceVertexUvs[0][index][index2].set(uvArr[val[index2]][0], uvArr[val[index2]][1]);
             })
         });
-        projectionCube.uvsNeedUpdate = true;
-        if (Math.random() > .999) console.log(JSON.stringify(projectionCube.faceVertexUvs))
+    } 
+    
+    
+    else {
+        if (firstTime || 1) {
+            faceRubix.forEach(function (val, index, array) {
+                [0, 1, 2].forEach(function (val2, index2, array2) {
+                    projectionCube.faceVertexUvs[0][index][index2].set(uvArr[val[index2]][0], uvArr[val[index2]][1]);
+                    console.log(projectionCube.faceVertexUvs[0][index][index2].set(uvArr[val[index2]][0], uvArr[val[index2]][1]));
+                })
+            });
+            projectionCube.uvsNeedUpdate = true;
+            if (Math.random() > .999) console.log(JSON.stringify(projectionCube.faceVertexUvs))
+        }
     }
-
-
-    //        console.log(uvArr);
+    
+    
 }
+
+
+
+
+
+
 
 function createUVS(uvArr) {
-    projectionCube.faceVertexUvs[0] = [];
-    faceRubix.forEach(function (val, index, array) {
-        var faceUV = [];
-        val.forEach(function (val2, index2, array2) {
-            val4 = uvArr[val2];
-            faceUV.push(new THREE.Vector2(val4[0], val4[1])); // rubix
+    
+    if (rubix){
+        projectionCube.faceVertexUvs[0] = [];
+        faceRubix.forEach(function (val, index, array) {
+            var faceUV = [];
+            val.forEach(function (val2, index2, array2) {
+                val4 = uvArr[val2];
+                faceUV.push(new THREE.Vector2(val4[0], val4[1])); // rubix
+            });
+            projectionCube.faceVertexUvs[0].push(faceUV);
         });
-        projectionCube.faceVertexUvs[0].push(faceUV);
-    });
-    projectionCube.uvsNeedUpdate = true;
-    console.log(JSON.stringify(projectionCube.faceVertexUvs))
+        projectionCube.uvsNeedUpdate = true;
+    }
+    
+    else{
+        projectionCube.faceVertexUvs[0] = [];
+        faceRubix.forEach(function (val, index, array) {
+            var faceUV = [];
+            val.forEach(function (val2, index2, array2) {
+                val4 = uvArr[val2];
+                faceUV.push(new THREE.Vector2(val4[0], val4[1])); // rubix
+            });
+            projectionCube.faceVertexUvs[0].push(faceUV);
+        });
+        projectionCube.uvsNeedUpdate = true;
+    }
+    
 }
+
 
 
 
@@ -703,14 +671,6 @@ function animate() {
     update();
 }
 
-
-
-
-
-
-
-
-
 function uv2vert(geometry, faceIndex, vertexIndex) {
     return geometry.vertices[
         geometry.faces[faceIndex][String.fromCharCode(97 + vertexIndex)]
@@ -726,7 +686,7 @@ function vectorToScreen(vector) {
 function vectorToUV(vector) {
     var vect = vector.clone();
     vect.addScalar(1);
-    vect.divideScalar(2.02);
+    vect.divideScalar(2);
     return vect;
 }
 
@@ -796,11 +756,13 @@ function updatePts(vertexPts, pts, reorderArray) {
     return updatedPts;
 }
 
+
+
 function calculateReorderPoints(pts, vertexPts) {
     var distanceArr = [];
     pts.pop();
     pts.forEach(function (val, index, array) {
-        var minVal = 1000;
+        var minVal = 1000;      // .
         var minIndex = 0;
         vertexPts.forEach(function (val2, index2, array2) {
             var totalDist = Math.abs(val[0] - val2[0]) + Math.abs(val[1] - val2[1]);
@@ -832,3 +794,61 @@ function rotateCube(cube, x, y, z) {
     cube.rotation.z += z;
 }
 /*====================================================*/
+
+
+
+
+
+
+/*
+	  UV // Vector // Screen Reference
+
+	  Note:
+	      - UV       (1,1) is upper top limit.
+	      - Vector   (1,1) is 
+	      - Screen   (1,1) is 
+	  
+	  (( x indicates origin ))
+
+
+    =======================================
+	UV (texture map)
+    (0,0) ~ (1,1)
+
+	|           .      (1,1)
+	|     
+	|   
+	|
+	x------------
+    
+    =======================================
+
+	Vector (3d/threejs)
+    (-∞, -∞) ~ (∞, ∞)
+
+	            |
+	            |    
+	            |           (1,1)
+	            | .
+	------------x------------
+	            |
+	            |   
+	            |
+	            |
+    
+    =======================================
+	    
+	Screen (div/html)
+    (0,0) ~ (∞, -∞)
+    
+	x------------
+	| .             (1,1)
+	|   
+	|
+	|              
+    
+    
+    =======================================
+
+
+*/
