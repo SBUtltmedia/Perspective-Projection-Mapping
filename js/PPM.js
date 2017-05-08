@@ -416,18 +416,20 @@ function render() {
     });
 
 
-      console.log(JSON.stringify(pts));
+   //   console.log(JSON.stringify(pts));
 
     
     
     
     // temporary placement for testing
-    var reorderArray = calculateReorderPoints(pts, vertexPts);
+    var reorderArray = calculateReorderPoints(pts, rubixPoints);
+    if (Math.random() > .999) console.log(reorderArray,JSON.stringify(pts),rubixPoints)
+
     var updatedPts = updatePts(vertexPts, pts, reorderArray);       // shrn: fix this
 
 //    console.log(updatedPts);
     
-    console.log(calculateReorderPoints(vertexPts,updatedPts))
+    //console.log(calculateReorderPoints(vertexPts,updatedPts))
     
     // if (Math.random() > .99) console.log(updatedPts)
     //    console.log(updatedPts);
@@ -462,11 +464,11 @@ function updateUVS(uvArr) {
             faceRubix.forEach(function (val, index, array) {
                 [0, 1, 2].forEach(function (val2, index2, array2) {
                     projectionCube.faceVertexUvs[0][index][index2].set(uvArr[val[index2]][0], uvArr[val[index2]][1]);
-                    console.log(projectionCube.faceVertexUvs[0][index][index2].set(uvArr[val[index2]][0], uvArr[val[index2]][1]));
+                //    console.log(projectionCube.faceVertexUvs[0][index][index2].set(uvArr[val[index2]][0], uvArr[val[index2]][1]));
                 })
             });
             projectionCube.uvsNeedUpdate = true;
-            if (Math.random() > .999) console.log(JSON.stringify(projectionCube.faceVertexUvs))
+         //   if (Math.random() > .999) console.log(JSON.stringify(projectionCube.faceVertexUvs))
         }
     }
     
@@ -723,6 +725,18 @@ function normPoint(canvasID, x, y) {
 
 }
 
+// function drawPoint(canvasID, x, y, idx, color) {
+//     var can = document.getElementById(canvasID);
+//     // console.log(x * width, y * height);
+//     //    console.log(x * width, y * height);
+//     $("#vert" + idx).css({
+//         "left": (x) + "px",
+//         "top": (y) + "px",
+//         "backgroundColor": color
+//     });
+//     return [x / can.width, -y / can.width]
+// }
+
 function drawPoint(canvasID, x, y, idx, color) {
     var can = document.getElementById(canvasID);
     // console.log(x * width, y * height);
@@ -762,10 +776,11 @@ function calculateReorderPoints(pts, vertexPts) {
     var distanceArr = [];
     pts.pop();
     pts.forEach(function (val, index, array) {
-        var minVal = 1000;      // .
-        var minIndex = 0;
+        var minVal = 10000000;      // .
+        var minIndex =10;
         vertexPts.forEach(function (val2, index2, array2) {
-            var totalDist = Math.abs(val[0] - val2[0]) + Math.abs(val[1] - val2[1]);
+           // var totalDist = Math.abs(val[0] - val2[0]) + Math.abs(val[1] - val2[1]);
+             var totalDist = Math.sqrt(Math.pow(val[0] - val2[0],2) + Math.pow(val[1] - val2[1],2));
             if (totalDist < minVal) {
                 minVal = totalDist;
                 minIndex = index2;
